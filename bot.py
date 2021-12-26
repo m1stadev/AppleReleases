@@ -57,7 +57,7 @@ async def startup():
         bot.session = session
 
         try:
-            await bot.start(os.environ['BOT_TOKEN'])
+            await bot.start(os.environ.get('BOT_TOKEN'))
         except discord.LoginFailure:
             logger.error('Token invalid, make sure the \'BOT_TOKEN\' environment variable is set to your bot token. Exiting.')
             exit(1)

@@ -41,7 +41,7 @@ class EventsCog(discord.Cog, name='Events'):
                         'url': await api.get_icon(firm)
                     },
                     'footer': {
-                        'text': 'ReleaseBot • Made by m1sta and Jaidan',
+                        'text': 'Apple Releases • Made by m1sta and Jaidan',
                         'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
                     },
                     'fields': [
@@ -100,7 +100,7 @@ class EventsCog(discord.Cog, name='Events'):
 
         roles = dict()
         for os in api.VALID_RELEASES:
-            role = await guild.create_role(name=f'{os} Releases', reason='Created by ReleaseBot')
+            role = await guild.create_role(name=f'{os} Releases', reason='Created by Apple Releases')
             roles[os] = {
                 'role': role.id,
                 'channel': 846383888862937183,
@@ -120,7 +120,7 @@ class EventsCog(discord.Cog, name='Events'):
         for os in roles.keys():
             role = guild.get_role(roles[os].get('role'))
             if role is not None:
-                await role.delete(reason='Deleted by ReleaseBot')
+                await role.delete(reason='Deleted by Apple Releases')
 
         await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (guild.id,))
         await self.bot.db.commit()

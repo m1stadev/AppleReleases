@@ -15,7 +15,7 @@ import time
 
 async def startup():
     if sys.version_info.major < 3 and sys.version_info.minor < 9:
-        logger.error('ReleasesBot requires Python 3.9 or higher. Exiting.')
+        logger.error('Apple Releases requires Python 3.9 or higher. Exiting.')
         exit(1)
 
     load_dotenv()

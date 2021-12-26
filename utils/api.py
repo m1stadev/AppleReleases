@@ -1,5 +1,6 @@
 from .logger import logger
 from .types import Release
+from aiopath import AsyncPath
 
 import aiofiles
 import aiohttp
@@ -15,7 +16,7 @@ VALID_RELEASES = (
 )
 
 async def rss(url: str):
-    if url.startswith('/'):
+    if await AsyncPath(url).is_file():
         async with aiofiles.open(url) as f:
             r = await f.read()
 

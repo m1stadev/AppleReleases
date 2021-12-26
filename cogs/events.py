@@ -46,11 +46,6 @@ class EventsCog(discord.Cog, name='Events'):
                             'name': 'Release Date',
                             'value': format_dt(firm.date),
                             'inline': False
-                        },
-                        {
-                            'name': 'Build Number',
-                            'value': firm.build_number,
-                            'inline': False
                         }
                     ],
                     'footer': {
@@ -58,6 +53,13 @@ class EventsCog(discord.Cog, name='Events'):
                         'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
                     }
                 }
+
+                if firm.type in api.VALID_RELEASES:
+                    embed['fields'].append({
+                            'name': 'Build Number',
+                            'value': firm.build_number,
+                            'inline': False
+                        })
 
                 buttons = [{
                     'label': 'Link',

@@ -43,12 +43,8 @@ async def fetch_firmwares() -> list:
     """
     # Introduce needed variable
     releases = []
-    # Fetch beta releases
-    betas = format_feed(feedparser.parse('https://developer.apple.com/news/releases/rss/releases.rss').entries)
-    if len(betas) > 0:
-        releases.append(betas)
-    # Fetch stable releases
-    stable = format_feed(feedparser.parse('https://www.apple.com/newsroom/rss-feed.rss').entries)
+    # Fetch releases
+    stable = format_feed(feedparser.parse('https://developer.apple.com/news/releases/rss/releases.rss').entries)
     if len(stable) > 0:
         releases.append(stable)
     # Return what we found

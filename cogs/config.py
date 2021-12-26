@@ -122,12 +122,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
 
     @config.command(name='toggle', description='Toggle the announcement of Apple releases.')
     async def toggle_release(self, ctx: discord.ApplicationContext, os: Option(str, description='Toggle announcing an Apple release', autocomplete=os_autocomplete)):
-        timeout_embed = discord.Embed(title='Add Device', description='No response given in 5 minutes, cancelling.')
-        cancelled_embed = discord.Embed(title='Add Device', description='Cancelled.')
         invalid_embed = discord.Embed(title='Error')
-
-        for x in (timeout_embed, cancelled_embed):
-            x.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
         if not ctx.author.guild_permissions.administrator:
             invalid_embed.description = 'You do not have permission to use this command.'

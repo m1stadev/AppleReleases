@@ -10,6 +10,7 @@ import asyncio
 import discord
 import os
 import sys
+import time
 
 
 async def startup():

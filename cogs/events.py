@@ -33,7 +33,6 @@ class EventsCog(discord.Cog, name='Events'):
             self.firmwares: List[types.Release] = await api.fetch_firmwares() # Replace cached firmwares with new ones
 
             for firm in firm_diff:
-                
                 embed = {
                     'title': 'New Release',
                     'description': firm.firmware,
@@ -41,10 +40,6 @@ class EventsCog(discord.Cog, name='Events'):
                     'color': int(discord.Color.blurple()),
                     'thumbnail': {
                         'url': await firm.get_icon()
-                    },
-                    'footer': {
-                        'text': 'Apple Releases • Made by m1sta and Jaidan',
-                        'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
                     },
                     'fields': [
                         {
@@ -57,7 +52,11 @@ class EventsCog(discord.Cog, name='Events'):
                             'value': firm.build_number,
                             'inline': False
                         }
-                    ]
+                    ],
+                    'footer': {
+                        'text': 'Apple Releases • Made by m1sta and Jaidan',
+                        'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
+                    }
                 }
 
                 buttons = [{

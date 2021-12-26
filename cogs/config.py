@@ -23,13 +23,18 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await ctx.respond(embed=cmd_embeds[paginator.embed_num], view=paginator, ephemeral=True)
 
     @config.command(name='setchannel', description='Set a channel for *OS releases to be announced in.') #TODO: Implement setting announcement channels on a per-role basis
-    async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send *OS releases in')):
+    async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send OS releases in')):
         timeout_embed = discord.Embed(title='Add Device', description='No response given in 5 minutes, cancelling.')
         cancelled_embed = discord.Embed(title='Add Device', description='Cancelled.')
         invalid_embed = discord.Embed(title='Error')
 
         for x in (timeout_embed, cancelled_embed):
             x.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
+
+        if not ctx.author.guild_permissions.administrator:
+            invalid_embed.description = 'You do not have permission to use this command.'
+            await ctx.respond(embed=invalid_embed, ephemeral=True)
+            return
 
         if not channel.can_send():
             invalid_embed.description = "I don't have permission to send OS releases into that channel."
@@ -57,7 +62,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
             emoji='❌'
         ))
 
-        embed = discord.Embed(title='Configuration', description=f"Choose the OS type you'd like to send releases in {channel.mention} for.")
+        embed = discord.Embed(title='Configuration', description=f"Choose which OS you'd like to send new releases to {channel.mention} for.")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
         dropdown = DropdownView(options, ctx, 'OS Type')

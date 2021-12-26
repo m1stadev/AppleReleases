@@ -28,7 +28,7 @@ class MiscCog(commands.Cog, name='Miscellaneous'):
 
         embed = discord.Embed(title='Invite', description='Apple Releases invite:')
         embed.set_thumbnail(url=self.bot.user.display_avatar.with_static_format('png').url)
-        embed.set_footer(text='Apple Releases • Made by m1sta and Jaidan', icon_url=str(self.bot.user.display_avatar.with_static_format('png').url))
+        embed.set_footer(text='Apple Releases • Made by m1sta and Jaidan', icon_url=self.bot.user.display_avatar.with_static_format('png').url)
 
         view = SelectView(buttons, ctx, timeout=None)
         await ctx.respond(embed=embed, view=view, ephemeral=True)

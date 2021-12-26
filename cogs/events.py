@@ -1,7 +1,8 @@
 from datetime import datetime
 from discord.ext import commands, tasks
 from discord.utils import format_dt
-from utils import api, logger
+from views.buttons import SelectView
+from utils import api
 
 import asyncio
 import discord
@@ -21,7 +22,6 @@ class EventsCog(discord.Cog, name='Events'):
     async def release_checker(self) -> None:
         await self.bot.wait_until_ready()
 
-        print('checking for new releases')
         if self.firmwares is None:
             #self.firmwares = await api.fetch_firmwares()
             self.firmwares = api.format_feed(feedparser.parse('releases.rss').entries)
@@ -54,14 +54,15 @@ class EventsCog(discord.Cog, name='Events'):
                             'name': 'Build Number',
                             'value': api.format_build_number(firm),
                             'inline': False
-                        },
-                        {
-                            'name': 'URL',
-                            'value': f'[Click me!]({firm.get("link")})',
-                            'inline': False
                         }
                     ]
                 }
+
+                buttons = [{
+                    'label': 'Link',
+                    'style': discord.ButtonStyle.link,
+                    'url': firm.get('link')
+                }]
 
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
@@ -72,7 +73,7 @@ class EventsCog(discord.Cog, name='Events'):
                     roles = json.loads(item[1])
                     channel = guild.get_channel(roles[api.format_version(firm).split()[0]].get('channel'))
 
-                    await channel.send(content=await api.format_ping(firm, self.bot, guild), embed=discord.Embed.from_dict(embed))
+                    await channel.send(content=await api.format_ping(firm, self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
         
         await asyncio.sleep(60)
 

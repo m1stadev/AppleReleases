@@ -53,15 +53,9 @@ def format_feed(feed: list) -> list:
     Returns:
         
     """
-    # Introduce needed variables
-    releases = []
-    # Iterate through items in feed
-    for item in feed:
-        if item.get('title').split()[0] in VALID_RELEASES:
-            releases.append(Release(item))
 
     # Return what we found
-    return releases
+    return [Release(item) for item in feed]
 
 async def fetch_firmwares() -> list:
     """Fetches all (recently) released firmwares.

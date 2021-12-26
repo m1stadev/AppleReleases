@@ -10,6 +10,14 @@ import feedparser
 import json
 
 
+VALID_RELEASES = (
+    'iOS',
+    'iPadOS',
+    'macOS',
+    'tvOS',
+    'watchOS'
+)
+
 def format_feed(feed: list) -> list:
     """Formats recieved RSS entries into an interable JSON.
     
@@ -20,16 +28,9 @@ def format_feed(feed: list) -> list:
     """
     # Introduce needed variables
     releases = []
-    valid_releases = (
-        'tvOS',
-        'watchOS',
-        'iOS',
-        'iPadOS',
-        'macOS'
-    )
     # Iterate through items in feed
     for item in feed:
-        if item.get('title').split()[0] in valid_releases:
+        if item.get('title').split()[0] in VALID_RELEASES:
             releases.append(item)
     # Return what we found
     return releases

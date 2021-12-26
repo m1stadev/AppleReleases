@@ -27,26 +27,29 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await ctx.respond(embed=cmd_embeds[paginator.embed_num], view=paginator, ephemeral=True)
     
     @config.command(name='list', description='List current configuration settings.')
-    async def list(self, ctx: discord.ApplicationContext) -> None:
-        roles_new = []
+    async def list_config(self, ctx: discord.ApplicationContext) -> None:
         async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (ctx.guild_id,)) as cursor:
             roles = json.loads((await cursor.fetchone())[0])
-        for os in roles.keys():
-            roles[os]['os'] = os
-        for role in roles:
-            roles_new.append(roles[role])
+
         embed = {
-            'title': f'Configuration for {ctx.guild.name}',
+            'title': 'Apple Releases Configuration',
             'timestamp': str(datetime.now()),
             'color': int(discord.Color.blurple()),
             'thumbnail': {
                 'url': ctx.guild.icon.url
             },
+            'fields': [
+                    {
+                        'name': os,
+                        'value': f"Status: {'Enabled' if roles[os].get('enabled') else 'Disabled'}\nAnnouncement Channel: {ctx.guild.get_channel(roles[os].get('channel')).mention}\nAnnouncement Role: {ctx.guild.get_role(roles[os].get('role')).mention}",
+                        'inline': False
+                    } 
+                for os in roles.keys()
+            ],
             'footer': {
-                'text': 'ReleaseBot • Made by m1sta and Jaidan',
+                'text': 'Apple Releases • Made by m1sta and Jaidan',
                 'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
             },
-            'fields': [{'name':role.get('os'),'value':'```yaml\nChannel: {}\nEnabled: {}```'.format(role.get('channel'), role.get('enabled')),'inline': False} for role in roles_new]
         }
         await ctx.respond(embed=discord.Embed.from_dict(embed), ephemeral=True)
         
@@ -115,7 +118,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), ctx.guild.id))
         await self.bot.db.commit()
 
-        embed = discord.Embed(title='Configuration', description=f"All {'Apple' if dropdown.answer == 'All' else dropdown.answer} releases will now be sent to: {channel.mention}")
+        embed = discord.Embed(title='Configuration', description=f"All {'Apple' if dropdown.answer == 'All' else dropdown.answer} releases will now be announced in: {channel.mention}")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
         await ctx.edit(embed=embed)

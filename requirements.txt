@@ -3,6 +3,6 @@ aiopath
 aiosqlite
 bs4
 git+https://github.com/Pycord-Development/pycord@master
-nest-asyncio
+psutil
 python-dotenv
 pytz

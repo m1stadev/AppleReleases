@@ -51,8 +51,8 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await ctx.respond(embed=discord.Embed.from_dict(embed), ephemeral=True)
         
 
-    @config.command(name='setchannel', description='Set a channel for OS releases to be announced in.')
-    async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send OS releases in')):
+    @config.command(name='setchannel', description='Set a channel for Apple releases to be announced in.')
+    async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in')):
         timeout_embed = discord.Embed(title='Add Device', description='No response given in 5 minutes, cancelling.')
         cancelled_embed = discord.Embed(title='Add Device', description='Cancelled.')
         invalid_embed = discord.Embed(title='Error')
@@ -66,7 +66,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
             return
 
         if not channel.can_send():
-            invalid_embed.description = "I don't have permission to send OS releases into that channel."
+            invalid_embed.description = "I don't have permission to send Apple releases into that channel."
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
 
@@ -76,7 +76,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         options = [
             discord.SelectOption(
                 label='All',
-                description='All OS releases'
+                description='All Apple releases'
             )
         ]
 
@@ -91,10 +91,10 @@ class ConfigCog(discord.Cog, name='Configuration'):
             emoji='❌'
         ))
 
-        embed = discord.Embed(title='Configuration', description=f"Choose which OS you'd like to send new releases to {channel.mention} for.")
+        embed = discord.Embed(title='Configuration', description=f"Choose which software you'd like to announce new releases in {channel.mention} for.")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
-        dropdown = DropdownView(options, ctx, 'OS')
+        dropdown = DropdownView(options, ctx, 'Software')
         await ctx.respond(embed=embed, view=dropdown, ephemeral=True)
         await dropdown.wait()
         if dropdown.answer is None:
@@ -115,13 +115,13 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), ctx.guild.id))
         await self.bot.db.commit()
 
-        embed = discord.Embed(title='Configuration', description=f"All {'*OS' if dropdown.answer == 'All' else dropdown.answer} releases will now be sent to: {channel.mention}")
+        embed = discord.Embed(title='Configuration', description=f"All {'Apple' if dropdown.answer == 'All' else dropdown.answer} releases will now be sent to: {channel.mention}")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
         await ctx.edit(embed=embed)
 
-    @config.command(name='toggle', description='Toggle the announcement of OS releases.')
-    async def toggle_release(self, ctx: discord.ApplicationContext, os: Option(str, description='Toggle announcing an OS release', autocomplete=os_autocomplete)):
+    @config.command(name='toggle', description='Toggle the announcement of Apple releases.')
+    async def toggle_release(self, ctx: discord.ApplicationContext, os: Option(str, description='Toggle announcing an Apple release', autocomplete=os_autocomplete)):
         timeout_embed = discord.Embed(title='Add Device', description='No response given in 5 minutes, cancelling.')
         cancelled_embed = discord.Embed(title='Add Device', description='Cancelled.')
         invalid_embed = discord.Embed(title='Error')

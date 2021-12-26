@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 from discord.utils import format_dt
 from typing import List
 from utils import api, types
+from pytz import timezone as tz
 from views.buttons import SelectView
 
 import asyncio
@@ -36,13 +37,13 @@ class EventsCog(discord.Cog, name='Events'):
                 embed = {
                     'title': 'New Release',
                     'description': firm.firmware,
-                    'timestamp': str(datetime.now()),
+                    'timestamp': str(tz('US/Pacific').localize(datetime.now())),
                     'color': int(discord.Color.blurple()),
                     'thumbnail': {
                         'url': await firm.get_icon()
                     },
                     'footer': {
-                        'text': 'ReleaseBot • Made by m1sta and Jaidan',
+                        'text': 'Apple Releases • Made by m1sta and Jaidan',
                         'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
                     },
                     'fields': [
@@ -101,7 +102,7 @@ class EventsCog(discord.Cog, name='Events'):
 
         roles = dict()
         for os in api.VALID_RELEASES:
-            role = await guild.create_role(name=f'{os} Releases', reason='Created by ReleaseBot')
+            role = await guild.create_role(name=f'{os} Releases', reason='Created by Apple Releases')
             roles[os] = {
                 'role': role.id,
                 'channel': 846383888862937183,
@@ -121,7 +122,7 @@ class EventsCog(discord.Cog, name='Events'):
         for os in roles.keys():
             role = guild.get_role(roles[os].get('role'))
             if role is not None:
-                await role.delete(reason='Deleted by ReleaseBot')
+                await role.delete(reason='Deleted by Apple Releases')
 
         await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (guild.id,))
         await self.bot.db.commit()

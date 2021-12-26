@@ -8,15 +8,13 @@ import aiopath
 import aiosqlite #TODO: Move to MongoDB
 import asyncio
 import discord
-import nest_asyncio
 import os
 import sys
 
 
 async def startup():
-    nest_asyncio.apply()
     if sys.version_info.major < 3 and sys.version_info.minor < 9:
-        logger.error('ReleasesBot requires Python 3.9 or higher. Exiting.')
+        logger.error('Apple Releases requires Python 3.9 or higher. Exiting.')
         exit(1)
 
     load_dotenv()
@@ -34,6 +32,7 @@ async def startup():
         debug_guild=846383887973482516
     )
 
+    bot.start_time = time.time()
     bot.load_extension('cogs.utils') # Load utils cog first
     cogs = aiopath.AsyncPath('cogs')
     async for cog in cogs.glob('*.py'):

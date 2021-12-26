@@ -1,3 +1,4 @@
+from .api import VALID_RELEASES
 from datetime import datetime
 from pytz import timezone as tz
 
@@ -18,7 +19,7 @@ class Release():
         # Raw RSS
         self.__rss = rss
         # Firmware Type
-        self.type: str = rss.get('title').split()[0]
+        self.type: str = rss.get('title').split()[0] if rss.get('title').split()[0] in VALID_RELEASES else 'Other'
         # Firmware
         self.firmware: str = format_version(rss)
         # Build number

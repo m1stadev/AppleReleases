@@ -56,6 +56,7 @@ class Release():
         """
         async with bot.db.execute('SELECT data FROM roles WHERE guild = ?', (guild.id,)) as cursor:
             roles = json.loads((await cursor.fetchone())[0])
+
         for os in roles.keys():
             if os == self.type:
-                return '<@&{}>'.format(roles[os].get('role'))
+                return guild.get_role(roles[os].get('role')).mention

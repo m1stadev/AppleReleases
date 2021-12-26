@@ -1,6 +1,7 @@
 from . import api
 from datetime import datetime
 from pytz import timezone as tz
+from typing import Optional
 
 import aiohttp
 import bs4
@@ -8,7 +9,7 @@ import discord
 import json
 
 
-def format_build_number(firm: dict) -> str: return firm.get('title').split('(')[1].split(' |')[0].replace(')', '')
+def format_build_number(firm: dict) -> str: return firm.get('title').split('(')[1].split(')')[0].replace(' | ', '')
 
 def format_version(firm: dict) -> str: return firm.get('title').split(' (')[0]
 
@@ -23,7 +24,7 @@ class Release():
         # Firmware
         self.firmware: str = format_version(rss)
         # Build number
-        self.build_number: str = format_build_number(rss)
+        self.build_number: Optional[str] = format_build_number(rss) if rss.get('title').split()[0] in api.VALID_RELEASES else None
         # Link
         self.link: str = rss.get('link')
         # Description

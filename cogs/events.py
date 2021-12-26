@@ -87,6 +87,35 @@ class EventsCog(discord.Cog, name='Events'):
     async def on_guild_join(self, guild: discord.Guild) -> None:
         await self.bot.wait_until_ready()
 
+        embed = {
+            'title': 'Hi! I\'m Apple Releases!',
+            'description': 'In order to start using me, you need to set me up as according to the following instructions.',
+            'color': int(discord.Color.blurple()),
+            'thumbnail': {
+                'url': 'https://www.apple.com/ac/structured-data/images/open_graph_logo.png'
+            },
+            'footer': {
+                'text': 'Apple Releases • Made by m1sta and Jaidan',
+                'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
+            },
+            'fields': [
+                {
+                    'name': 'Setup',
+                    'value': 'In order to start using me, please run `/config setchannel` with the channel that you\'d like me to send releases to. That\'s **IT!** Talk about easy!'
+                },
+                {
+                    'name': 'What else can I do?',
+                    'value': 'In order to see a complete list of my commands, run `/help`.'
+                }
+            ]
+        }
+        for channel in guild.text_channels:
+            try:
+                await channel.send(embed=discord.Embed.from_dict(embed))
+                break
+            except:
+                pass
+
         if not guild.me.guild_permissions.manage_roles:
             embed = {
                 'title': 'Hey!',

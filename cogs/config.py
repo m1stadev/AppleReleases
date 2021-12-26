@@ -1,3 +1,4 @@
+from datetime import datetime
 from discord import Option
 from utils import api
 from views.selects import DropdownView
@@ -16,7 +17,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
 
         self.utils = self.bot.get_cog('Utilities')
 
-    config = discord.SlashCommandGroup('config', 'Configuration commands')
+    config = discord.SlashCommandGroup('config', 'Configuration commands', guild_ids=[846383887973482516])
 
     @config.command(name='help', description='View all configuration commands.')
     async def _help(self, ctx: discord.ApplicationContext) -> None:
@@ -24,6 +25,31 @@ class ConfigCog(discord.Cog, name='Configuration'):
 
         paginator = PaginatorView(cmd_embeds, ctx, timeout=180)
         await ctx.respond(embed=cmd_embeds[paginator.embed_num], view=paginator, ephemeral=True)
+    
+    @config.command(name='list', description='List current configuration settings.')
+    async def list(self, ctx: discord.ApplicationContext) -> None:
+        roles_new = []
+        async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (ctx.guild_id,)) as cursor:
+            roles = json.loads((await cursor.fetchone())[0])
+        for os in roles.keys():
+            roles[os]['os'] = os
+        for role in roles:
+            roles_new.append(roles[role])
+        embed = {
+            'title': f'Configuration for {ctx.guild.name}',
+            'timestamp': str(datetime.now()),
+            'color': int(discord.Color.blurple()),
+            'thumbnail': {
+                'url': ctx.guild.icon.url
+            },
+            'footer': {
+                'text': 'ReleaseBot • Made by m1sta and Jaidan',
+                'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
+            },
+            'fields': [{'name':role.get('os'),'value':'```yaml\nChannel: {}\nEnabled: {}```'.format(role.get('channel'), role.get('enabled')),'inline': False} for role in roles_new]
+        }
+        await ctx.respond(embed=discord.Embed.from_dict(embed), ephemeral=True)
+        
 
     @config.command(name='setchannel', description='Set a channel for OS releases to be announced in.')
     async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send OS releases in')):

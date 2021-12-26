@@ -1,12 +1,12 @@
 from datetime import datetime
 from discord.ext import commands, tasks
 from discord.utils import format_dt
+from typing import List
+from utils import api, types
 from views.buttons import SelectView
-from utils import api
 
 import asyncio
 import discord
-import feedparser
 import json
 
 
@@ -24,21 +24,22 @@ class EventsCog(discord.Cog, name='Events'):
 
         if self.firmwares is None:
             #self.firmwares = await api.fetch_firmwares()
-            self.firmwares = api.format_feed(feedparser.parse('releases.rss').entries)
+            self.firmwares: List[types.Release] = api.format_feed(await api.rss('/Users/jaidan/Developer/release-bot/releases.rss'))
             return
 
-        firm_diff = await api.compare_firmwares(self.firmwares) # Check for any new firmwares 
+        firm_diff: List[types.Release] = await api.compare_firmwares(self.firmwares) # Check for any new firmwares 
         if len(firm_diff) > 0:
-            self.firmwares = await api.fetch_firmwares() # Replace cached firmwares with new ones
+            self.firmwares: List[types.Release] = await api.fetch_firmwares() # Replace cached firmwares with new ones
 
-            for firm in firm_diff[0]:
+            for firm in firm_diff:
+                
                 embed = {
                     'title': 'New Release',
-                    'description': api.format_version(firm),
+                    'description': firm.firmware,
                     'timestamp': str(datetime.now()),
                     'color': int(discord.Color.blurple()),
                     'thumbnail': {
-                        'url': await api.get_icon(firm)
+                        'url': await firm.get_icon()
                     },
                     'footer': {
                         'text': 'ReleaseBot • Made by m1sta and Jaidan',
@@ -47,12 +48,12 @@ class EventsCog(discord.Cog, name='Events'):
                     'fields': [
                         {
                             'name': 'Release Date',
-                            'value': format_dt(api.format_date(firm)),
+                            'value': format_dt(firm.date),
                             'inline': False
                         },
                         {
                             'name': 'Build Number',
-                            'value': api.format_build_number(firm),
+                            'value': firm.build_number,
                             'inline': False
                         }
                     ]
@@ -61,14 +62,14 @@ class EventsCog(discord.Cog, name='Events'):
                 buttons = [{
                     'label': 'Link',
                     'style': discord.ButtonStyle.link,
-                    'url': firm.get('link')
+                    'url': firm.link
                 }]
 
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
 
                 for item in data:
-                    os = api.format_version(firm).split()[0]
+                    os = firm.type
                     guild = self.bot.get_guild(item[0])
 
                     roles = json.loads(item[1])
@@ -76,7 +77,7 @@ class EventsCog(discord.Cog, name='Events'):
                         continue
 
                     channel = guild.get_channel(roles[os].get('channel'))
-                    await channel.send(content=await api.format_ping(firm, self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
+                    await channel.send(content=await firm.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
         
         await asyncio.sleep(60)
 

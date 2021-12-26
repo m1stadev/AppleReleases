@@ -4,3 +4,4 @@ Data/
 env/
 .DS_Store
 .env
+venv/

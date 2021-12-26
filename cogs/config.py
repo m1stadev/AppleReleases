@@ -1,10 +1,13 @@
 from discord import Option
-
+from utils import api
 from views.selects import DropdownView
 from views.buttons import PaginatorView
 
 import discord
 import json
+
+
+async def os_autocomplete(ctx: discord.AutocompleteContext) -> list: return [_ for _ in api.VALID_RELEASES if _.startswith(ctx.value.lower())]
 
 
 class ConfigCog(discord.Cog, name='Configuration'):
@@ -22,7 +25,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         paginator = PaginatorView(cmd_embeds, ctx, timeout=180)
         await ctx.respond(embed=cmd_embeds[paginator.embed_num], view=paginator, ephemeral=True)
 
-    @config.command(name='setchannel', description='Set a channel for *OS releases to be announced in.') #TODO: Implement setting announcement channels on a per-role basis
+    @config.command(name='setchannel', description='Set a channel for OS releases to be announced in.')
     async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send OS releases in')):
         timeout_embed = discord.Embed(title='Add Device', description='No response given in 5 minutes, cancelling.')
         cancelled_embed = discord.Embed(title='Add Device', description='Cancelled.')
@@ -49,8 +52,8 @@ class ConfigCog(discord.Cog, name='Configuration'):
                 label='All',
                 description='All OS releases'
             )
-
         ]
+
         for os in roles.keys():
             options.append(discord.SelectOption(
                 label=os,
@@ -65,7 +68,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         embed = discord.Embed(title='Configuration', description=f"Choose which OS you'd like to send new releases to {channel.mention} for.")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
-        dropdown = DropdownView(options, ctx, 'OS Type')
+        dropdown = DropdownView(options, ctx, 'OS')
         await ctx.respond(embed=embed, view=dropdown, ephemeral=True)
         await dropdown.wait()
         if dropdown.answer is None:
@@ -86,11 +89,43 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), ctx.guild.id))
         await self.bot.db.commit()
 
-        embed = discord.Embed(title='Configuration', description=f"{'*OS' if dropdown.answer == 'All' else dropdown.answer} releases will now be sent to: {channel.mention}")
+        embed = discord.Embed(title='Configuration', description=f"All {'*OS' if dropdown.answer == 'All' else dropdown.answer} releases will now be sent to: {channel.mention}")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
         await ctx.edit(embed=embed)
-        
+
+    @config.command(name='toggle', description='Toggle the announcement of OS releases.')
+    async def toggle_release(self, ctx: discord.ApplicationContext, os: Option(str, description='Toggle announcing an OS release', autocomplete=os_autocomplete)):
+        timeout_embed = discord.Embed(title='Add Device', description='No response given in 5 minutes, cancelling.')
+        cancelled_embed = discord.Embed(title='Add Device', description='Cancelled.')
+        invalid_embed = discord.Embed(title='Error')
+
+        for x in (timeout_embed, cancelled_embed):
+            x.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
+
+        if not ctx.author.guild_permissions.administrator:
+            invalid_embed.description = 'You do not have permission to use this command.'
+            await ctx.respond(embed=invalid_embed, ephemeral=True)
+            return
+
+        if os not in api.VALID_RELEASES:
+            invalid_embed.description = f'`{os}` is not a valid OS type.'
+            await ctx.respond(embed=invalid_embed, ephemeral=True)
+            return
+
+        async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (ctx.guild.id,)) as cursor:
+            roles = json.loads((await cursor.fetchone())[0])
+
+        enabled = not roles[os].get('enabled')
+        roles[os].update({'enabled': enabled})
+        await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), ctx.guild.id))
+        await self.bot.db.commit()
+
+        embed = discord.Embed(title='Configuration', description=f"{os} releases will {'now' if enabled else 'no longer'} be announced.")
+        embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
+
+        await ctx.respond(embed=embed, ephemeral=True)
+
 
 def setup(bot):
     bot.add_cog(ConfigCog(bot))

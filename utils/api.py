@@ -1,6 +1,7 @@
 from .logger import logger
 from .types import Release
 
+import aiofiles
 import aiohttp
 import bs4
 
@@ -15,20 +16,32 @@ VALID_RELEASES = (
 
 async def rss(url: str):
     if url.startswith('/'):
-        f = open(url, 'r')
-        r = f.read()
+        async with aiofiles.open(url) as f:
+            r = await f.read()
+
     else:
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    r = await resp.text()
+            async with aiohttp.ClientSession() as session, session.get(url) as resp:
+                r = await resp.text()
+
         except Exception:
             logger.error('Error fetching the URL: ', url)
+
     try:    
         soup = bs4.BeautifulSoup(r, features='html.parser')
     except Exception:
         logger.error('Could not parse the xml: ', url)
-    articles = [{'title':a.find('title').text,'link':a.link.next_sibling.replace('\n','').replace('\t',''),'description':a.find('description').text,'pubdate':a.find('pubdate').text} for a in soup.findAll('item')]
+
+    articles = [
+            {
+                'title': a.find('title').text,
+                'link': a.link.next_sibling.replace('\n','').replace('\t',''),
+                'description': a.find('description').text,
+                'pubdate': a.find('pubdate').text
+            }
+        for a in soup.findAll('item')
+        ]
+
     return articles
 
 def format_feed(feed: list) -> list:
@@ -45,6 +58,7 @@ def format_feed(feed: list) -> list:
     for item in feed:
         if item.get('title').split()[0] in VALID_RELEASES:
             releases.append(Release(item))
+
     # Return what we found
     return releases
 
@@ -74,5 +88,6 @@ async def compare_firmwares(to_compare: list) -> list:
         if firmware not in to_compare:
             # Add the new firmware to the list of differences
             differences.append(firmware)
+
     # Return the differences
     return differences

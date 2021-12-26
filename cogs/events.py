@@ -68,11 +68,14 @@ class EventsCog(discord.Cog, name='Events'):
                     data = await cursor.fetchall()
 
                 for item in data:
+                    os = api.format_version(firm).split()[0]
                     guild = self.bot.get_guild(item[0])
 
                     roles = json.loads(item[1])
-                    channel = guild.get_channel(roles[api.format_version(firm).split()[0]].get('channel'))
+                    if not roles[os].get('enabled'):
+                        continue
 
+                    channel = guild.get_channel(roles[os].get('channel'))
                     await channel.send(content=await api.format_ping(firm, self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
         
         await asyncio.sleep(60)
@@ -96,11 +99,12 @@ class EventsCog(discord.Cog, name='Events'):
                     pass
 
         roles = dict()
-        for os in ('tvOS', 'watchOS', 'iOS', 'iPadOS', 'macOS'):
+        for os in api.VALID_RELEASES:
             role = await guild.create_role(name=f'{os} Releases', reason='Created by ReleaseBot')
             roles[os] = {
                 'role': role.id,
-                'channel': 846383888862937183
+                'channel': 846383888862937183,
+                'enabled': True
             }
 
         await self.bot.db.execute('INSERT INTO roles(guild, data) VALUES(?,?)', (guild.id, json.dumps(roles)))

@@ -100,7 +100,7 @@ class EventsCog(discord.Cog, name='Events'):
                     pass
 
         roles = dict()
-        for os in api.VALID_RELEASES:
+        for os in [*api.VALID_RELEASES, 'Other Apple']:
             role = await guild.create_role(name=f'{os} Releases', reason='Created by Apple Releases')
             roles[os] = {
                 'role': role.id,

@@ -1,6 +1,7 @@
 from datetime import datetime
 from discord.ext import commands, tasks
 from discord.utils import format_dt
+from pytz import timezone as tz
 from views.buttons import SelectView
 from utils import api
 
@@ -35,7 +36,7 @@ class EventsCog(discord.Cog, name='Events'):
                 embed = {
                     'title': 'New Release',
                     'description': api.format_version(firm),
-                    'timestamp': str(datetime.now()),
+                    'timestamp': str(tz('US/Pacific').localize(datetime.now())),
                     'color': int(discord.Color.blurple()),
                     'thumbnail': {
                         'url': await api.get_icon(firm)

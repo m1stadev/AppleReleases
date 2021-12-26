@@ -122,14 +122,6 @@ class EventsCog(discord.Cog, name='Events'):
     async def on_guild_remove(self, guild: discord.Guild) -> None:
         await self.bot.wait_until_ready()
 
-        async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (guild.id,)) as cursor:
-            roles = json.loads((await cursor.fetchone())[0])
-
-        for os in roles.keys():
-            role = guild.get_role(roles[os].get('role'))
-            if role is not None:
-                await role.delete(reason='Deleted by Apple Releases')
-
         await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (guild.id,))
         await self.bot.db.commit()
 

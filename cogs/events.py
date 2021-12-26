@@ -101,17 +101,25 @@ class EventsCog(discord.Cog, name='Events'):
 
         roles = dict()
         for os in api.VALID_RELEASES:
-            role = await guild.create_role(name=f'{os} Releases', reason='Created by Apple Releases')
+            try:
+                role = next(_ for _ in guild.roles if _.name == f'{os} Releases')
+            except StopIteration:
+                role = await guild.create_role(name=f'{os} Releases', reason='Created by Apple Releases')
+
             roles[os] = {
                 'role': role.id,
-                'channel': 846383888862937183,
+                'channel': 924507072194830376,
                 'enabled': True
             }
 
-        role = await guild.create_role(name='Other Apple Releases', reason='Created by Apple Releases')
+        try:
+            role = next(_ for _ in guild.roles if _.name == 'Other Apple Releases')
+        except StopIteration:
+            role = await guild.create_role(name='Other Apple Releases', reason='Created by Apple Releases')
+
         roles['Other'] = {
             'role': role.id,
-            'channel': 846383888862937183,
+            'channel': 924507072194830376,
             'enabled': True
         }
 

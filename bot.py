@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from discord.ext import commands
 from dotenv.main import load_dotenv
 from utils.logger import logger
 
@@ -34,6 +33,7 @@ async def startup():
         debug_guild=846383887973482516
     )
 
+    bot.start_time = time.time()
     bot.load_extension('cogs.utils') # Load utils cog first
     cogs = aiopath.AsyncPath('cogs')
     async for cog in cogs.glob('*.py'):

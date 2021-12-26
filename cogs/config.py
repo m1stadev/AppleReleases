@@ -17,7 +17,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
 
         self.utils = self.bot.get_cog('Utilities')
 
-    config = discord.SlashCommandGroup('config', 'Configuration commands', guild_ids=[846383887973482516])
+    config = discord.SlashCommandGroup('config', 'Configuration commands')
 
     @config.command(name='help', description='View all configuration commands.')
     async def _help(self, ctx: discord.ApplicationContext) -> None:

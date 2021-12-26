@@ -1,8 +1,9 @@
 from datetime import datetime
+from discord.commands import slash_command
 from discord import Option
 from utils import api
 from views.selects import DropdownView
-from views.buttons import PaginatorView
+from views.buttons import PaginatorView, ReactionRoleView
 
 import discord
 import json
@@ -148,6 +149,46 @@ class ConfigCog(discord.Cog, name='Configuration'):
         embed = discord.Embed(title='Configuration', description=f"{os} releases will {'now' if enabled else 'no longer'} be announced.")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
+        await ctx.respond(embed=embed, ephemeral=True)
+
+    @slash_command(description='Send a Reaction Role message for Apple Release announcements.')
+    async def reactionrole(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)) -> None:
+        if channel is None:
+            channel = ctx.channel
+
+        if not channel.can_send():
+            embed = discord.Embed(title='Error', description="I don't have permission to send messages into that channel.")
+            await ctx.respond(embed=embed, ephemeral=True)
+            return
+
+        async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (ctx.guild.id,)) as cursor:
+            data = json.loads((await cursor.fetchone())[0])
+
+        roles = [ctx.guild.get_role(data[_]['role']) for _ in data.keys()]
+
+        buttons = [{
+            'label': 'Invite',
+            'style': discord.ButtonStyle.link,
+            'url': self.utils.invite
+        }]
+
+        buttons = dict()
+        for role in roles:
+            buttons[role] = {
+                'label': role.name,
+                'style': discord.ButtonStyle.secondary,
+                'custom_id': role.id
+            }
+
+        embed = discord.Embed(description='Click the buttons to opt in or out of Apple release notifications of your choice.')
+        embed.set_thumbnail(url=self.bot.user.display_avatar.with_static_format('png').url)
+        embed.set_footer(text='Apple Releases • Made by m1sta and Jaidan', icon_url=self.bot.user.display_avatar.with_static_format('png').url)
+
+        await channel.send(embed=embed, view=ReactionRoleView(buttons))
+
+        embed = discord.Embed(title='Reaction Role', description=f'Reaction Role embed sent to {channel.mention}.')
+        embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
+        
         await ctx.respond(embed=embed, ephemeral=True)
 
 

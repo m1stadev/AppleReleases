@@ -1,10 +1,6 @@
-from typing import Optional
+from typing import Mapping, Optional
 
 import discord
-
-
-class ViewStoppedError(Exception):
-    pass
 
 
 class SelectButton(discord.ui.Button['SelectView']):
@@ -96,27 +92,24 @@ class PaginatorView(discord.ui.View):
         await self.ctx.edit(view=self)
 
 
-class CancelView(discord.ui.View):
-    def __init__(self, context: discord.ApplicationContext):
-        super().__init__()
+class ReactionRoleButton(discord.ui.Button['ReactionRoleView']):
+    def __init__(self, button: dict, role: discord.Role):
+        super().__init__(**button)
 
-        self.ctx = context
+        self.role = role
 
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.danger)
-    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await self.on_timeout()
-        self.stop()
-        raise ViewStoppedError('Cancel button was pressed.')
+    async def callback(self, interaction: discord.Interaction):
+        if self.role not in interaction.user.roles:
+            await interaction.user.add_roles(self.role, reason='Added by Apple Releases')
+        else:
+            await interaction.user.remove_roles(self.role, reason='Removed by Apple Releases')
 
-    async def on_error(self, error: Exception, item: discord.ui.Item, interaction: discord.Interaction) -> None:
-        raise error
 
-    async def interaction_check(self, interaction: discord.Interaction):
-        if interaction.channel.type == discord.ChannelType.private:
-            return True
+class ReactionRoleView(discord.ui.View):
+    def __init__(self, data: Mapping[discord.Role, dict]):
+        super().__init__(timeout=None)
 
-        return interaction.user == self.ctx.author
+        for role, button in data.items():
+            self.add_item(ReactionRoleButton(button, role))
 
-    async def on_timeout(self):
-        self.clear_items()
-        await self.ctx.edit(view=self)
+    async def interaction_check(self, interaction: discord.Interaction): return True

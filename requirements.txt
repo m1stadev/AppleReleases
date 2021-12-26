@@ -4,5 +4,6 @@ aiosqlite
 bs4
 feedparser
 git+https://github.com/Pycord-Development/pycord@master
+psutil
 python-dotenv
 pytz

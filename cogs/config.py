@@ -151,7 +151,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
 
         await ctx.respond(embed=embed, ephemeral=True)
 
-    @slash_command(description='Send a Reaction Role message for Apple Release announcements.')
+    @slash_command(name='reactionrole', description='Send a Reaction Role message for Apple Release announcements.')
     async def reaction_role(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)) -> None:
         if channel is None:
             channel = ctx.channel

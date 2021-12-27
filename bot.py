@@ -24,11 +24,10 @@ async def startup():
         exit(1)
 
     mentions = discord.AllowedMentions(everyone=False, users=False, roles=True)    
-    (intents := discord.Intents.default()).members = True
 
     bot = discord.AutoShardedBot(
         help_command=None,
-        intents=intents,
+        intents=discord.Intents.default(),
         allowed_mentions=mentions
     )
 
@@ -59,9 +58,6 @@ async def startup():
             await bot.start(os.environ.get('BOT_TOKEN'))
         except discord.LoginFailure:
             logger.error('Token invalid, make sure the \'BOT_TOKEN\' environment variable is set to your bot token. Exiting.')
-            exit(1)
-        except discord.PrivilegedIntentsRequired:
-            logger.error('Server Members Intent not enabled, go to \'https://discord.com/developers/applications\' and enable the Server Members Intent. Exiting.')
             exit(1)
 
 

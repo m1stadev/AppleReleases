@@ -3,7 +3,7 @@ from discord.commands import slash_command
 from discord import Option
 from utils import api
 from views.selects import DropdownView
-from views.buttons import PaginatorView, ReactionRoleView
+from views.buttons import PaginatorView, ReactionRoleButton
 
 import discord
 import json
@@ -42,7 +42,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
             'fields': [
                     {
                         'name': os,
-                        'value': f"Status: {'Enabled' if roles[os].get('enabled') else 'Disabled'}\nAnnouncement Channel: {ctx.guild.get_channel(roles[os].get('channel')).mention}\nAnnouncement Role: {ctx.guild.get_role(roles[os].get('role')).mention}",
+                        'value': f"Status: {'Enabled' if roles[os].get('enabled') else 'Disabled'}\nAnnouncement Channel: {ctx.guild.get_channel(roles[os].get('channel')).mention if ctx.guild.get_channel(roles[os].get('channel')) is not None else 'None'}\nAnnouncement Role: {ctx.guild.get_role(roles[os].get('role')).mention}",
                         'inline': False
                     } 
                 for os in roles.keys()
@@ -70,7 +70,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
             return
 
         if not channel.can_send():
-            invalid_embed.description = "I don't have permission to send Apple releases into that channel."
+            invalid_embed.description = f"I don't have permission to send messages into {channel.mention}."
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
 
@@ -152,7 +152,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await ctx.respond(embed=embed, ephemeral=True)
 
     @slash_command(description='Send a Reaction Role message for Apple Release announcements.')
-    async def reactionrole(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)) -> None:
+    async def reaction_role(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)) -> None:
         if channel is None:
             channel = ctx.channel
 

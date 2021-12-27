@@ -29,8 +29,7 @@ async def startup():
     bot = discord.AutoShardedBot(
         help_command=None,
         intents=intents,
-        allowed_mentions=mentions,
-        debug_guild=846383887973482516
+        allowed_mentions=mentions
     )
 
     bot.start_time = time.time()

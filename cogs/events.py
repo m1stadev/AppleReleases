@@ -24,8 +24,7 @@ class EventsCog(discord.Cog, name='Events'):
         await self.bot.wait_until_ready()
 
         if self.firmwares is None:
-            #self.firmwares = await api.fetch_firmwares()
-            self.firmwares: List[types.Release] = api.format_feed(await api.rss('/Users/m1sta/Projects/release-bot/releases.rss'))
+            self.firmwares = await api.fetch_firmwares()
             return
 
         firm_diff: List[types.Release] = await api.compare_firmwares(self.firmwares) # Check for any new firmwares 
@@ -75,7 +74,7 @@ class EventsCog(discord.Cog, name='Events'):
                     guild = self.bot.get_guild(item[0])
 
                     roles = json.loads(item[1])
-                    if not roles[os].get('enabled'):
+                    if not roles[os].get('enabled') or roles[os].get('channel') is None:
                         continue
 
                     channel = guild.get_channel(roles[os].get('channel'))
@@ -143,7 +142,7 @@ class EventsCog(discord.Cog, name='Events'):
 
             roles[os] = {
                 'role': role.id,
-                'channel': 924507072194830376,
+                'channel': None,
                 'enabled': True
             }
 
@@ -154,7 +153,7 @@ class EventsCog(discord.Cog, name='Events'):
 
         roles['Other'] = {
             'role': role.id,
-            'channel': 924507072194830376,
+            'channel': None,
             'enabled': True
         }
 

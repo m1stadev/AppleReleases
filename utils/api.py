@@ -7,6 +7,14 @@ import aiohttp
 import bs4
 
 
+VALID_RELEASES = (
+    'iOS',
+    'iPadOS',
+    'macOS',
+    'tvOS',
+    'watchOS'
+)
+
 async def rss(url: str):
     if await AsyncPath(url).is_file():
         async with aiofiles.open(url) as f:

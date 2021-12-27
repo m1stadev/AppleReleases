@@ -4,7 +4,7 @@ from discord.utils import format_dt
 from typing import List
 from utils import api, types
 from pytz import timezone as tz
-from views.buttons import SelectView
+from views.buttons import ReactionRoleButton, SelectView
 
 import asyncio
 import discord
@@ -170,7 +170,19 @@ class EventsCog(discord.Cog, name='Events'):
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:
-        print('Bot is now online.')
+        for guild in self.bot.guilds:
+            async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (guild.id,)) as cursor:
+                data = json.loads((await cursor.fetchone())[0])
+
+            view = discord.ui.View(timeout=None)
+
+            roles = [guild.get_role(data[_]['role']) for _ in data.keys()]
+            for role in roles:
+                view.add_item(ReactionRoleButton(role, row=0 if roles.index(role) < 3 else 1))
+
+            self.bot.add_view(view)
+
+        print('Apple Releases is now online.')
 
     @discord.Cog.listener()
     async def on_command_error(self, ctx: discord.ApplicationContext, error) -> None:

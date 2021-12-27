@@ -92,24 +92,25 @@ class PaginatorView(discord.ui.View):
         await self.ctx.edit(view=self)
 
 
-class ReactionRoleButton(discord.ui.Button['ReactionRoleView']):
-    def __init__(self, button: dict, role: discord.Role):
-        super().__init__(**button)
+class ReactionRoleButton(discord.ui.Button):
+    def __init__(self, role: discord.Role, *, row=0):
+        super().__init__(
+            label=role.name,
+            style=discord.ButtonStyle.primary,
+            custom_id=str(role.id),
+            row=row
+        )
 
         self.role = role
 
     async def callback(self, interaction: discord.Interaction):
+        embed = discord.Embed(title='Apple Releases')
+
         if self.role not in interaction.user.roles:
             await interaction.user.add_roles(self.role, reason='Added by Apple Releases')
+            embed.description = f'You have been given the **{self.role.name}** role.'
         else:
             await interaction.user.remove_roles(self.role, reason='Removed by Apple Releases')
+            embed.description = f'You have removed the **{self.role.name}** role.'
 
-
-class ReactionRoleView(discord.ui.View):
-    def __init__(self, data: Mapping[discord.Role, dict]):
-        super().__init__(timeout=None)
-
-        for role, button in data.items():
-            self.add_item(ReactionRoleButton(button, role))
-
-    async def interaction_check(self, interaction: discord.Interaction): return True
+        await interaction.response.send_message(embed=embed, ephemeral=True)

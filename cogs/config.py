@@ -157,34 +157,23 @@ class ConfigCog(discord.Cog, name='Configuration'):
             channel = ctx.channel
 
         if not channel.can_send():
-            embed = discord.Embed(title='Error', description="I don't have permission to send messages into that channel.")
+            embed = discord.Embed(title='Error', description=f"I don't have permission to send messages into {channel.mention}.")
             await ctx.respond(embed=embed, ephemeral=True)
             return
 
         async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (ctx.guild.id,)) as cursor:
             data = json.loads((await cursor.fetchone())[0])
 
+        view = discord.ui.View(timeout=None)
         roles = [ctx.guild.get_role(data[_]['role']) for _ in data.keys()]
-
-        buttons = [{
-            'label': 'Invite',
-            'style': discord.ButtonStyle.link,
-            'url': self.utils.invite
-        }]
-
-        buttons = dict()
         for role in roles:
-            buttons[role] = {
-                'label': role.name,
-                'style': discord.ButtonStyle.secondary,
-                'custom_id': role.id
-            }
+            view.add_item(ReactionRoleButton(role, row=0 if roles.index(role) < 3 else 1))
 
         embed = discord.Embed(description='Click the buttons to opt in or out of Apple release notifications of your choice.')
         embed.set_thumbnail(url=self.bot.user.display_avatar.with_static_format('png').url)
         embed.set_footer(text='Apple Releases • Made by m1sta and Jaidan', icon_url=self.bot.user.display_avatar.with_static_format('png').url)
 
-        await channel.send(embed=embed, view=ReactionRoleView(buttons))
+        await channel.send(embed=embed, view=view)
 
         embed = discord.Embed(title='Reaction Role', description=f'Reaction Role embed sent to {channel.mention}.')
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)

@@ -25,7 +25,7 @@ class EventsCog(discord.Cog, name='Events'):
 
         if self.firmwares is None:
             #self.firmwares = await api.fetch_firmwares()
-            self.firmwares: List[types.Release] = api.format_feed(await api.rss('/Users/jaidan/Developer/release-bot/releases.rss'))
+            self.firmwares: List[types.Release] = api.format_feed(await api.rss('/Users/m1sta/Projects/release-bot/releases.rss'))
             return
 
         firm_diff: List[types.Release] = await api.compare_firmwares(self.firmwares) # Check for any new firmwares 
@@ -88,26 +88,30 @@ class EventsCog(discord.Cog, name='Events'):
         await self.bot.wait_until_ready()
 
         embed = {
-            'title': 'Hi! I\'m Apple Releases!',
-            'description': 'In order to start using me, you need to set me up as according to the following instructions.',
+            'title': 'Hello!',
+            'description': 'In order to start using Apple Releases, please follow the instructions below:',
             'color': int(discord.Color.blurple()),
             'thumbnail': {
                 'url': 'https://www.apple.com/ac/structured-data/images/open_graph_logo.png'
             },
-            'footer': {
-                'text': 'Apple Releases • Made by m1sta and Jaidan',
-                'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
-            },
             'fields': [
                 {
                     'name': 'Setup',
-                    'value': 'In order to start using me, please run `/config setchannel` with the channel that you\'d like me to send releases to. That\'s **IT!** Talk about easy!'
+                    'value': 'Run `/config setchannel` to specify a channel that you\'d like to announce Apple releases in.'
+                },
+                {
+                    'name': 'Notification Roles',
+                    'value': 'Run `/reactionrole` to send a message that will allow users to assign themselves notification roles.'
                 },
                 {
                     'name': 'What else can I do?',
                     'value': 'In order to see a complete list of my commands, run `/help`.'
                 }
-            ]
+            ],
+            'footer': {
+                'text': 'Apple Releases • Made by m1sta and Jaidan',
+                'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
+            }
         }
         for channel in guild.text_channels:
             try:

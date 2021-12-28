@@ -5,7 +5,7 @@
 [![LoC](https://img.shields.io/tokei/lines/github/m1stadev/AppleReleases)](https://github.com/m1stadev/AppleReleases)
 [![Discord Invite](https://img.shields.io/badge/Discord-Invite%20AppleReleases-%237289DA)](https://m1sta.xyz/AppleReleases)
 
-Get notifications in your Discord server of any software releases from [Apple](https://developer.apple.com/news/releases/)
+Get notifications in your Discord server of any software releases from [Apple](https://developer.apple.com/news/releases/).
 
 ## Running
 To locally host your own instance, [create a Discord bot](https://discord.com/developers) and follow these steps...
@@ -24,6 +24,8 @@ To locally host your own instance, [create a Discord bot](https://discord.com/de
 
         python3 bot.py
 
-## Support
+## Invite
+An invite for Apple Releases can be found [here](https://discord.com/oauth2/authorize?client_id=925119047404769322&scope=bot+applications.commands&permissions=268651520).
 
+## Support
 For any questions/issues you have, join my [Discord](https://m1sta.xyz/discord).

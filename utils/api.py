@@ -41,7 +41,7 @@ async def rss(url: str):
                 'pubdate': a.find('pubdate').text
             }
         for a in soup.findAll('item')
-        ]
+    ]
 
     return articles
 

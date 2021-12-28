@@ -59,7 +59,7 @@ async def fetch_releases() -> list:
     # Return releases
     return format_feed(await rss('https://developer.apple.com/news/releases/rss/releases.rss'))
 
-async def compare_releases(to_compare: list) -> list:
+async def compare_releases(to_compare: list[Release]) -> list:
     """Compares already fetched release list to the current releases.
     
     Args:
@@ -71,4 +71,4 @@ async def compare_releases(to_compare: list) -> list:
     releases = await fetch_releases()
 
     # Compare the old & new release lists
-    return [_ for _ in releases if _ not in to_compare]
+    return [r for r in releases if not any(r._rss == _._rss  for _ in to_compare)]

@@ -18,7 +18,7 @@ def format_date(firm: dict) -> datetime: return tz('US/Pacific').localize(dateti
 class Release():
     def __init__(self, rss: dict):
         # Raw RSS
-        self.__rss = rss
+        self._rss = rss
         # Release Type
         self.type: str = rss.get('title').split()[0] if rss.get('title').split()[0] in api.VALID_RELEASES else 'Other'
         # Version

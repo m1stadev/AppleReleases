@@ -20,7 +20,7 @@ class UtilsCog(discord.Cog, name='Utilities'):
         This is a much better implementation that utilizes
         available tools in the discord library rather than
         being lazy and using a long string. """
-        return discord.utils.oauth_url(self.bot.user.id, permissions=discord.Permissions(268463104), scopes=('bot', 'applications.commands'))
+        return discord.utils.oauth_url(self.bot.user.id, permissions=discord.Permissions(268651520), scopes=('bot', 'applications.commands'))
 
     async def cmd_help_embed(self, ctx: discord.ApplicationContext, cmd: discord.SlashCommand):
         embed = {

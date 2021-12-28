@@ -19,8 +19,8 @@ async def startup():
         exit(1)
 
     load_dotenv()
-    if 'BOT_TOKEN' not in os.environ.keys():
-        logger.error('Bot token not set in \'BOT_TOKEN\' environment variable. Exiting.')
+    if 'AR_TOKEN' not in os.environ.keys():
+        logger.error('Bot token not set in \'AR_TOKEN\' environment variable. Exiting.')
         exit(1)
 
     mentions = discord.AllowedMentions(everyone=False, users=False, roles=True)
@@ -55,9 +55,9 @@ async def startup():
         bot.session = session
 
         try:
-            await bot.start(os.environ.get('BOT_TOKEN'))
+            await bot.start(os.environ.get('AR_TOKEN'))
         except discord.LoginFailure:
-            logger.error('Token invalid, make sure the \'BOT_TOKEN\' environment variable is set to your bot token. Exiting.')
+            logger.error('Token invalid, make sure the \'AR_TOKEN\' environment variable is set to your bot token. Exiting.')
             exit(1)
 
 

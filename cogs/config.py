@@ -64,7 +64,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         for x in (timeout_embed, cancelled_embed):
             x.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
-        if not ctx.author.guild_permissions.administrator:
+        if not ctx.author.guild_permissions.manage_guild:
             invalid_embed.description = 'You do not have permission to use this command.'
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
@@ -131,7 +131,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
     async def toggle_release(self, ctx: discord.ApplicationContext, os: Option(str, description='Toggle announcing an Apple release', autocomplete=os_autocomplete)):
         invalid_embed = discord.Embed(title='Error')
 
-        if not ctx.author.guild_permissions.administrator:
+        if not ctx.author.guild_permissions.manage_guild:
             invalid_embed.description = 'You do not have permission to use this command.'
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
@@ -157,7 +157,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
     @slash_command(name='reactionrole', description='Send a Reaction Role message for Apple Release announcements.')
     async def reaction_role(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)) -> None:
         invalid_embed = discord.Embed(title='Error')
-        if not ctx.author.guild_permissions.administrator:
+        if not ctx.author.guild_permissions.manage_guild:
             invalid_embed.description = 'You do not have permission to use this command.'
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return

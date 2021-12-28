@@ -128,7 +128,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await ctx.edit(embed=embed)
 
     @config.command(name='toggle', description='Toggle the announcement of Apple releases.')
-    async def toggle_release(self, ctx: discord.ApplicationContext, os: Option(str, description='Toggle announcing an Apple release', autocomplete=os_autocomplete)):
+    async def toggle_release(self, ctx: discord.ApplicationContext, release: Option(str, description='Apple release to toggle', autocomplete=os_autocomplete)):
         invalid_embed = discord.Embed(title='Error')
 
         if not ctx.author.guild_permissions.manage_guild:
@@ -136,20 +136,20 @@ class ConfigCog(discord.Cog, name='Configuration'):
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
 
-        if os not in api.VALID_RELEASES:
-            invalid_embed.description = f'`{os}` is not a valid OS type.'
+        if release not in [*api.VALID_RELEASES, 'Other']:
+            invalid_embed.description = f'`{release}` is not a valid OS type.'
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
 
         async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (ctx.guild.id,)) as cursor:
             roles = json.loads((await cursor.fetchone())[0])
 
-        enabled = not roles[os].get('enabled')
-        roles[os].update({'enabled': enabled})
+        enabled = not roles[release].get('enabled')
+        roles[release].update({'enabled': enabled})
         await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), ctx.guild.id))
         await self.bot.db.commit()
 
-        embed = discord.Embed(title='Configuration', description=f"{os} releases will {'now' if enabled else 'no longer'} be announced.")
+        embed = discord.Embed(title='Configuration', description=f"**{release}** releases will {'now' if enabled else 'no longer'} be announced.")
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
 
         await ctx.respond(embed=embed, ephemeral=True)

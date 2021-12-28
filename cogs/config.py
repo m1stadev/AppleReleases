@@ -9,7 +9,7 @@ import discord
 import json
 
 
-async def release_autocomplete(ctx: discord.AutocompleteContext) -> list: return [_ for _ in [*api.VALID_RELEASES, 'Other'] if _.lower().startswith(ctx.value.lower())]
+async def release_autocomplete(ctx: discord.AutocompleteContext) -> list: return [_ for _ in [*api.VALID_RELEASES, 'Other'] if ctx.value.lower() in _.lower()]
 
 
 class ConfigCog(discord.Cog, name='Configuration'):

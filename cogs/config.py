@@ -9,7 +9,7 @@ import discord
 import json
 
 
-async def os_autocomplete(ctx: discord.AutocompleteContext) -> list: return [_ for _ in [*api.VALID_RELEASES, 'Other'] if _.lower().startswith(ctx.value.lower())]
+async def release_autocomplete(ctx: discord.AutocompleteContext) -> list: return [_ for _ in [*api.VALID_RELEASES, 'Other'] if _.lower().startswith(ctx.value.lower())]
 
 
 class ConfigCog(discord.Cog, name='Configuration'):
@@ -128,7 +128,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         await ctx.edit(embed=embed)
 
     @config.command(name='toggle', description='Toggle the announcement of Apple releases.')
-    async def toggle_release(self, ctx: discord.ApplicationContext, release: Option(str, description='Apple release to toggle', autocomplete=os_autocomplete)):
+    async def toggle_release(self, ctx: discord.ApplicationContext, release: Option(str, description='Apple release to toggle', autocomplete=release_autocomplete)):
         invalid_embed = discord.Embed(title='Error')
 
         if not ctx.author.guild_permissions.manage_guild:

@@ -47,7 +47,7 @@ class Release():
                 await session.close()
                 return response
 
-    async def ping(self, bot: discord.Bot, guild: discord.Guild):
+    async def ping(self, bot: discord.Bot, guild: discord.Guild) -> Optional[str]:
         """Formats the mention of the appropriate role for a release.
     
         Args:

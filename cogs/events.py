@@ -181,6 +181,7 @@ class EventsCog(discord.Cog, name='Events'):
 
             self.bot.add_view(view)
 
+        await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='for new releases'))
         print('Apple Releases is now online.')
 
     @discord.Cog.listener()

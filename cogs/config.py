@@ -53,7 +53,6 @@ class ConfigCog(discord.Cog, name='Configuration'):
             },
         }
         await ctx.respond(embed=discord.Embed.from_dict(embed), ephemeral=True)
-        
 
     @config.command(name='setchannel', description='Set a channel for Apple releases to be announced in.')
     async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)):

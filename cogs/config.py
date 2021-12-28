@@ -56,7 +56,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
         
 
     @config.command(name='setchannel', description='Set a channel for Apple releases to be announced in.')
-    async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in')):
+    async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)):
         timeout_embed = discord.Embed(title='Add Device', description='No response given in 5 minutes, cancelling.')
         cancelled_embed = discord.Embed(title='Add Device', description='Cancelled.')
         invalid_embed = discord.Embed(title='Error')
@@ -68,6 +68,9 @@ class ConfigCog(discord.Cog, name='Configuration'):
             invalid_embed.description = 'You do not have permission to use this command.'
             await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
+
+        if channel is None:
+            channel = ctx.channel
 
         if not channel.can_send():
             invalid_embed.description = f"I don't have permission to send messages into {channel.mention}."

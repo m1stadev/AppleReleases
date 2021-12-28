@@ -38,12 +38,8 @@ class Release():
         Returns:
             Icon URL.
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.link) as resp:
-                response = bs4.BeautifulSoup(await resp.text(), features='html.parser').findAll(attrs={'property': 'og:image'})[0]['content']
-                resp.close()
-                await session.close()
-                return response
+        async with aiohttp.ClientSession() as session, session.get(self.link) as resp:
+            return bs4.BeautifulSoup(await resp.text(), features='html.parser').findAll(attrs={'property': 'og:image'})[0]['content']
 
     async def ping(self, bot: discord.Bot, guild: discord.Guild) -> Optional[str]:
         """Formats the mention of the appropriate role for a release.

@@ -153,12 +153,18 @@ class ConfigCog(discord.Cog, name='Configuration'):
 
     @slash_command(name='reactionrole', description='Send a Reaction Role message for Apple Release announcements.')
     async def reaction_role(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)) -> None:
+        invalid_embed = discord.Embed(title='Error')
+        if not ctx.author.guild_permissions.administrator:
+            invalid_embed.description = 'You do not have permission to use this command.'
+            await ctx.respond(embed=invalid_embed, ephemeral=True)
+            return
+
         if channel is None:
             channel = ctx.channel
 
         if not channel.can_send():
-            embed = discord.Embed(title='Error', description=f"I don't have permission to send messages into {channel.mention}.")
-            await ctx.respond(embed=embed, ephemeral=True)
+            invalid_embed.description = f"I don't have permission to send messages into {channel.mention}."
+            await ctx.respond(embed=invalid_embed, ephemeral=True)
             return
 
         async with self.bot.db.execute('SELECT data FROM roles WHERE guild = ?', (ctx.guild.id,)) as cursor:

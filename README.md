@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/m1stadev/AppleReleases)](https://github.com/m1stadev/AppleReleases/blob/master/LICENSE)
 [![Stars](https://img.shields.io/github/stars/m1stadev/AppleReleases)](https://github.com/m1stadev/AppleReleases/stargazers)
 [![LoC](https://img.shields.io/tokei/lines/github/m1stadev/AppleReleases)](https://github.com/m1stadev/AppleReleases)
-[![Discord Invite](https://img.shields.io/badge/Discord-Invite%20AppleReleases-%237289DA)](https://discord.com/oauth2/authorize?client_id=925119047404769322&scope=bot+applications.commands&permissions=268651520)
+[![Discord Invite](https://img.shields.io/badge/Discord-Invite%20AppleReleases-%237289DA)](https://m1sta.xyz/applereleases)
 
 Get notifications in your Discord server of any software releases from [Apple](https://developer.apple.com/news/releases/).
 

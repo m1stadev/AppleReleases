@@ -23,12 +23,12 @@ async def startup():
         logger.error('Bot token not set in \'BOT_TOKEN\' environment variable. Exiting.')
         exit(1)
 
-    mentions = discord.AllowedMentions(everyone=False, users=False, roles=True)    
-
+    mentions = discord.AllowedMentions(everyone=False, users=False, roles=True)
     bot = discord.AutoShardedBot(
         help_command=None,
         intents=discord.Intents.default(),
-        allowed_mentions=mentions
+        allowed_mentions=mentions,
+        activity=discord.Activity(type=discord.ActivityType.watching, name='for new releases')
     )
 
     bot.start_time = time.time()

@@ -1,8 +1,6 @@
 from .logger import logger
 from .types import Release
-from aiopath import AsyncPath
 
-import aiofiles
 import aiohttp
 import bs4
 
@@ -16,17 +14,12 @@ VALID_RELEASES = (
 )
 
 async def rss(url: str):
-    if await AsyncPath(url).is_file():
-        async with aiofiles.open(url) as f:
-            r = await f.read()
+    try:
+        async with aiohttp.ClientSession() as session, session.get(url) as resp:
+            r = await resp.text()
 
-    else:
-        try:
-            async with aiohttp.ClientSession() as session, session.get(url) as resp:
-                r = await resp.text()
-
-        except Exception:
-            logger.error('Error fetching the URL: ', url)
+    except Exception:
+        logger.error('Error fetching the URL: ', url)
 
     try:    
         soup = bs4.BeautifulSoup(r, features='html.parser')
@@ -57,32 +50,25 @@ def format_feed(feed: list) -> list:
     # Return what we found
     return [Release(item) for item in feed]
 
-async def fetch_firmwares() -> list:
-    """Fetches all (recently) released firmwares.
+async def fetch_releases() -> list:
+    """Fetches all (recent) Apple releases.
     
     Returns:
-        List of recently released firmwares.
+        List of recent Apple releases.
     """
     # Return releases
     return format_feed(await rss('https://developer.apple.com/news/releases/rss/releases.rss'))
 
-async def compare_firmwares(to_compare: list) -> list:
-    """Compares already fetched firmware list to the current firmwares.
+async def compare_releases(to_compare: list) -> list:
+    """Compares already fetched release list to the current releases.
     
     Args:
-        to_compare (dict): Dictionary object of firmwares.
+        to_compare (dict): Dictionary object of releases.
     Returns:
-        Firmwares in recent list that weren't in previous.
+        Releases in recent list that weren't in previous.
     """
-    # Get all firmwares from the API
-    firmwares = await fetch_firmwares()
-    # Compare new firmwares to old firmwares
-    differences = []
-    for firmware in firmwares:
-        # Check if the firmware is new
-        if firmware not in to_compare:
-            # Add the new firmware to the list of differences
-            differences.append(firmware)
+    # Get all releases from the API
+    releases = await fetch_releases()
 
-    # Return the differences
-    return differences
+    # Compare the old & new release lists
+    return [_ for _ in releases if _ not in to_compare]

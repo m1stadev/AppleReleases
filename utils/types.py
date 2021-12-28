@@ -19,10 +19,10 @@ class Release():
     def __init__(self, rss: dict):
         # Raw RSS
         self.__rss = rss
-        # Firmware Type
+        # Release Type
         self.type: str = rss.get('title').split()[0] if rss.get('title').split()[0] in api.VALID_RELEASES else 'Other'
-        # Firmware
-        self.firmware: str = format_version(rss)
+        # Version
+        self.version: str = format_version(rss)
         # Build number
         self.build_number: Optional[str] = format_build_number(rss) if rss.get('title').split()[0] in api.VALID_RELEASES else None
         # Link
@@ -35,8 +35,6 @@ class Release():
     async def get_icon(self) -> str:
         """Gets the icon for the release.
     
-        Args:
-            firm (dict): Firmware to fetch the icon for.
         Returns:
             Icon URL.
         """

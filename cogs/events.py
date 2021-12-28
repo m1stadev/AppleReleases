@@ -16,34 +16,34 @@ class EventsCog(discord.Cog, name='Events'):
         self.bot = bot
 
         self.utils = self.bot.get_cog('Utilities')
-        self.firmwares = None
+        self.releases = None
         self.release_checker.start()
 
     @tasks.loop()
     async def release_checker(self) -> None:
         await self.bot.wait_until_ready()
 
-        if self.firmwares is None:
-            self.firmwares = await api.fetch_firmwares()
+        if self.releases is None:
+            self.releases = await api.fetch_releases()
             return
 
-        firm_diff: List[types.Release] = await api.compare_firmwares(self.firmwares) # Check for any new firmwares 
-        if len(firm_diff) > 0:
-            self.firmwares: List[types.Release] = await api.fetch_firmwares() # Replace cached firmwares with new ones
+        diff: List[types.Release] = await api.compare_releases(self.releases) # Check for any new firmwares
+        if len(diff) > 0:
+            self.releases: List[types.Release] = await api.fetch_releases() # Replace cached firmwares with new ones
 
-            for firm in firm_diff:
+            for release in diff:
                 embed = {
                     'title': 'New Release',
-                    'description': firm.firmware,
+                    'description': release.version,
                     'timestamp': str(tz('US/Pacific').localize(datetime.now())),
                     'color': int(discord.Color.blurple()),
                     'thumbnail': {
-                        'url': await firm.get_icon()
+                        'url': await release.get_icon()
                     },
                     'fields': [
                         {
                             'name': 'Release Date',
-                            'value': format_dt(firm.date),
+                            'value': format_dt(release.date),
                             'inline': False
                         }
                     ],
@@ -53,24 +53,24 @@ class EventsCog(discord.Cog, name='Events'):
                     }
                 }
 
-                if firm.type in api.VALID_RELEASES:
+                if release.type in api.VALID_RELEASES:
                     embed['fields'].append({
                             'name': 'Build Number',
-                            'value': firm.build_number,
+                            'value': release.build_number,
                             'inline': False
                         })
 
                 buttons = [{
                     'label': 'Link',
                     'style': discord.ButtonStyle.link,
-                    'url': firm.link
+                    'url': release.link
                 }]
 
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
 
                 for item in data:
-                    os = firm.type
+                    os = release.type
                     guild = self.bot.get_guild(item[0])
 
                     roles = json.loads(item[1])
@@ -78,7 +78,7 @@ class EventsCog(discord.Cog, name='Events'):
                         continue
 
                     channel = guild.get_channel(roles[os].get('channel'))
-                    await channel.send(content=await firm.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
+                    await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
         
         await asyncio.sleep(60)
 

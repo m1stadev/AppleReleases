@@ -25,6 +25,7 @@ class EventsCog(discord.Cog, name='Events'):
 
         if self.releases is None:
             self.releases = await api.fetch_releases()
+            await asyncio.sleep(60)
             return
 
         diff: List[types.Release] = await api.compare_releases(self.releases) # Check for any new firmwares

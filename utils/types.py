@@ -15,6 +15,29 @@ def format_version(firm: dict) -> str: return firm.get('title').split(' (')[0]
 
 def format_date(firm: dict) -> datetime: return tz('US/Pacific').localize(datetime.strptime(firm.get('pubdate')[:-4], '%a, %d %b %Y %H:%M:%S'))
 
+class AudioRelease():
+    def __init__(self, plist: dict, device: str):
+        # Raw RSS
+        self._plist = plist
+        # Release Type
+        self.type: str = device
+        # Version
+        self.version: str = plist.get('version')
+    
+    async def ping(self, bot: discord.Bot, guild: discord.Guild) -> Optional[str]:
+        """Formats the mention of the appropriate role for a release.
+    
+        Args:
+            bot (discord.Bot): Bot object.
+            guild (discord.Guild): Server guild object.
+        Returns:
+            Pre-formatted role mention.
+        """
+        async with bot.db.execute('SELECT data FROM roles WHERE guild = ?', (guild.id,)) as cursor:
+            roles = json.loads((await cursor.fetchone())[0])
+
+        return guild.get_role(roles['Other'].get('role')).mention
+
 class Release():
     def __init__(self, rss: dict):
         # Raw RSS

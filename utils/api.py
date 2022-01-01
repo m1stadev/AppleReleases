@@ -43,22 +43,20 @@ async def rss(url: str):
 async def plist(url: str):
     try:
         async with aiohttp.ClientSession() as session, session.get(url) as resp:
-            r = io.BytesIO(await resp.read())
-
+            try:
+                plist = plistlib.loads(await resp.read())
+            except Exception as e:
+                logger.error('Could not parse the plist: ', url)
+                print(e)
+ 
     except Exception:
         logger.error('[PLIST] Error fetching the URL: ', url)
-    
-    try:
-        plist = plistlib.load(r)
-    except Exception as e:
-        logger.error('Could not parse the plist: ', url)
-        print(e)
 
-    a = plist['Assets'][0]
     articles = [
-        {
-            'version': a['Build']
-        }
+            {
+                'version': _['Build']
+            }
+        for _ in plist['Assets']
     ]
     
     return articles

@@ -1,9 +1,9 @@
 from .logger import logger
 from .types import AudioRelease, Release
+from typing import Union
 
 import aiohttp
 import bs4
-import io
 import plistlib
 
 
@@ -85,7 +85,7 @@ def format_feed_plist(feed: list, type: str) -> list:
     # Return what we found
     return [AudioRelease(item, type) for item in feed]
 
-async def fetch_releases() -> list[Release | AudioRelease]:
+async def fetch_releases() -> list[Union[Release, AudioRelease]]:
     """Fetches all (recent) Apple releases.
     
     Returns:

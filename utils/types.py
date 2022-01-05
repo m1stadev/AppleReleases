@@ -1,7 +1,7 @@
 from . import api
 from datetime import datetime
 from pytz import timezone as tz
-from typing import Optional
+from typing import Optional, List
 
 import aiohttp
 import bs4
@@ -79,3 +79,10 @@ class Release():
         for os in roles.keys():
             if os == self.type:
                 return guild.get_role(roles[os].get('role')).mention
+
+class ComparedFirmwares():
+    def __init__(self, diff, fetched):
+        # Firmware differences
+        self.differences: List[Release] = diff
+        # Fetched firmwares
+        self.firmwares: List[Release] = fetched

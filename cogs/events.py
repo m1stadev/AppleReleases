@@ -28,9 +28,10 @@ class EventsCog(discord.Cog, name='Events'):
             await asyncio.sleep(60)
             return
 
-        diff: List[types.Release] = await api.compare_releases(self.releases) # Check for any new firmwares
+        firmwares: types.ComparedFirmwares = await api.compare_releases(self.releases) # Check for any new firmwares
+        diff: List[types.Release] = firmwares.differences
         if len(diff) > 0:
-            self.releases: List[types.Release] = await api.fetch_releases() # Replace cached firmwares with new ones
+            self.releases: List[types.Release] = firmwares.firmwares # Replace cached firmwares with new ones
 
             for release in diff:
                 embed = {

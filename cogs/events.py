@@ -2,7 +2,7 @@ from datetime import datetime
 from discord.ext import commands, tasks
 from discord.utils import format_dt
 from typing import List
-from utils import api, types
+from utils import api, types, logger
 from pytz import timezone as tz
 from views.buttons import ReactionRoleButton, SelectView
 
@@ -183,7 +183,8 @@ class EventsCog(discord.Cog, name='Events'):
 
             self.bot.add_view(view)
 
-        print('Apple Releases is now online.')
+        logger.logger.info('Apple Releases is READY!')
+        logger.logger.info(f'Logged in as {self.bot.user}. Serving {len(self.bot.guilds)} guild(s).')
 
     @discord.Cog.listener()
     async def on_command_error(self, ctx: discord.ApplicationContext, error) -> None:

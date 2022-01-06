@@ -1,5 +1,5 @@
 from .logger import logger
-from .types import AudioRelease, Release
+from .types import AudioRelease, Release, ComparedFirmwares
 from typing import Union
 
 import aiohttp
@@ -95,7 +95,7 @@ async def fetch_releases() -> list[Union[Release, AudioRelease]]:
     releases: list[Release] = format_feed(await rss('https://developer.apple.com/news/releases/rss/releases.rss'))
     return releases
 
-async def compare_releases(to_compare: list[Release]) -> list:
+async def compare_releases(to_compare: list[Release]) -> ComparedFirmwares:
     """Compares already fetched release list to the current releases.
     
     Args:
@@ -107,4 +107,4 @@ async def compare_releases(to_compare: list[Release]) -> list:
     releases = await fetch_releases()
 
     # Compare the old & new release lists
-    return [r for r in releases if not any(r._rss == _._rss  for _ in to_compare)]
+    return ComparedFirmwares([r for r in releases if not any(r._rss == _._rss  for _ in to_compare)], releases)

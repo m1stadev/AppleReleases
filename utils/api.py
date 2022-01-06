@@ -61,7 +61,7 @@ async def plist(url: str):
     
     return articles
 
-def format_feed(feed: list) -> list:
+def format_feed(feed: list) -> list[Release]:
     """Formats recieved RSS entries into an interable list of Release objects.
     
     Args:
@@ -73,7 +73,7 @@ def format_feed(feed: list) -> list:
     # Return what we found
     return [Release(item) for item in feed]
 
-def format_feed_plist(feed: list, type: str) -> list:
+def format_feed_plist(feed: list, type: str) -> list[AudioRelease]:
     """Formats recieved plist entries into an interable list of AudioRelease objects.
     
     Args:

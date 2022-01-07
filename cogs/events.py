@@ -37,7 +37,6 @@ class EventsCog(discord.Cog, name='Events'):
                 embed = {
                     'title': 'New Release',
                     'description': release.version,
-                    'timestamp': str(tz('US/Pacific').localize(datetime.now())),
                     'color': int(discord.Color.blurple()),
                     'thumbnail': {
                         'url': await release.get_icon()

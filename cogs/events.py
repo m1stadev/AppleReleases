@@ -3,7 +3,6 @@ from discord.ext import commands, tasks
 from discord.utils import format_dt
 from typing import List
 from utils import api, types, logger
-from pytz import timezone as tz
 from views.buttons import ReactionRoleButton, SelectView
 
 import asyncio

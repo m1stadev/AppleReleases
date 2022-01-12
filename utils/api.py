@@ -1,7 +1,9 @@
 from .logger import logger
 from .types import AudioRelease, Release, ComparedFirmwares
+from aiopath import AsyncPath
 from typing import Union
 
+import aiofiles
 import aiohttp
 import bs4
 import plistlib
@@ -16,12 +18,17 @@ VALID_RELEASES = (
 )
 
 async def rss(url: str):
-    try:
-        async with aiohttp.ClientSession() as session, session.get(url) as resp:
-            r = await resp.text()
+    if await AsyncPath(url).is_file():
+        async with aiofiles.open(url) as f:
+            r = await f.read()
 
-    except Exception:
-        logger.error('[RSS] Error fetching the URL: ', url)
+    else:
+        try:
+            async with aiohttp.ClientSession() as session, session.get(url) as resp:
+                r = await resp.text()
+
+        except Exception:
+            logger.error('[RSS] Error fetching the URL: ', url)
 
     try:    
         soup = bs4.BeautifulSoup(r, features='html.parser')

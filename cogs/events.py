@@ -79,7 +79,7 @@ class EventsCog(discord.Cog, name='Events'):
 
                     channel = guild.get_channel(roles[os].get('channel'))
                     await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
-        
+                    await asyncio.sleep(0.5)
         await asyncio.sleep(60)
 
     @discord.Cog.listener()

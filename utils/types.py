@@ -47,7 +47,7 @@ class Release():
         # Description
         self.description: str = rss.get('description')
         # Release date
-        self.date: datetime = self.__format_date(rss)
+        self.date: datetime = self.__format_date()
 
     def __format_build_number(self) -> str: return self._rss.get('title').split('(')[1].split(')')[0].replace(' | ', '')
 

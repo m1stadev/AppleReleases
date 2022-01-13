@@ -1,6 +1,7 @@
+# imports
 from datetime import datetime
-from discord.commands import slash_command
 from discord import Option
+from discord.commands import slash_command
 from utils import api
 from views.selects import DropdownView
 from views.buttons import PaginatorView, ReactionRoleButton
@@ -8,9 +9,7 @@ from views.buttons import PaginatorView, ReactionRoleButton
 import discord
 import json
 
-
 async def release_autocomplete(ctx: discord.AutocompleteContext) -> list: return [_ for _ in [*api.VALID_RELEASES, 'Other'] if ctx.value.lower() in _.lower()]
-
 
 class ConfigCog(discord.Cog, name='Configuration'):
     def __init__(self, bot: discord.Bot):
@@ -187,7 +186,6 @@ class ConfigCog(discord.Cog, name='Configuration'):
         embed.set_footer(text=ctx.author.display_name, icon_url=ctx.author.display_avatar.with_static_format('png').url)
         
         await ctx.respond(embed=embed, ephemeral=True)
-
 
 def setup(bot):
     bot.add_cog(ConfigCog(bot))

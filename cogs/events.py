@@ -1,3 +1,4 @@
+# imports
 from datetime import datetime
 from discord.ext import commands, tasks
 from discord.utils import format_dt
@@ -8,7 +9,6 @@ from views.buttons import ReactionRoleButton, SelectView
 import asyncio
 import discord
 import json
-
 
 class EventsCog(discord.Cog, name='Events'):
     def __init__(self, bot: discord.Bot):

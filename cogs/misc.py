@@ -1,3 +1,4 @@
+# imports
 from datetime import datetime
 from discord.commands import slash_command
 from discord.ext import commands
@@ -9,7 +10,6 @@ import asyncio
 import discord
 import psutil
 import sys
-
 
 class MiscCog(commands.Cog, name='Miscellaneous'):
     def __init__(self, bot: commands.Bot):

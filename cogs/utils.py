@@ -1,7 +1,7 @@
+# imports
 from discord.enums import SlashCommandOptionType
 
 import discord
-
 
 class UtilsCog(discord.Cog, name='Utilities'):
     def __init__(self, bot: discord.Bot):

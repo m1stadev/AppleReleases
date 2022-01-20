@@ -61,8 +61,10 @@ class Release():
         Returns:
             Icon URL.
         """
-        if self.__icon is not None:
-            return self.__icon
+        try:
+            return getattr(self, '__icon')
+        except AttributeError:
+            pass
 
         async with aiohttp.ClientSession() as session, session.get(self.link) as resp:
             self.__icon = bs4.BeautifulSoup(await resp.text(), features='html.parser').findAll(attrs={'property': 'og:image'})[0]['content']

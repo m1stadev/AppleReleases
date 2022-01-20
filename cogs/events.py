@@ -57,6 +57,7 @@ class EventsCog(discord.Cog, name='Events'):
 
                 try:
                     await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
+                    logger.logger.info(f'Sent {os} {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
                 except Exception as e:
                     logger.logger.error(f'Failed to send message to channel: {channel.id} in guild: {guild.id} with error: {e}')
 
@@ -68,8 +69,9 @@ class EventsCog(discord.Cog, name='Events'):
         await self.bot.wait_until_ready()
 
         if self.releases is None:
-            self.releases = await api.fetch_releases()
             logger.logger.info('Populating release cache...')
+            self.releases = await api.fetch_releases()
+            logger.logger.info('Release cache populated, sleeping 120s.')
             await asyncio.sleep(120)
             return
 
@@ -113,7 +115,7 @@ class EventsCog(discord.Cog, name='Events'):
                 await self.send_msgs(embed, release, data)
 
         else:
-            logger.logger.info('No new releases found.')
+            logger.logger.info('No new releases found, sleeping 120s.')
 
         await asyncio.sleep(120)
 

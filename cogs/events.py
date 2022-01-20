@@ -1,5 +1,4 @@
 # imports
-from datetime import datetime
 from discord.ext import commands, tasks
 from discord.utils import format_dt
 from typing import List
@@ -17,31 +16,52 @@ class EventsCog(discord.Cog, name='Events'):
         self.utils = self.bot.get_cog('Utilities')
         self.releases = None
         self.release_checker.start()
-        self.sent = []
     
-    async def send_msgs(self, embed, release, data):
-        while len(self.sent) is not len(data):
+    async def send_msgs(self, embed: dict, release: types.Release, data: dict) -> None:
+        meesaged_guilds = list()
+
+        while len(meesaged_guilds) != len(data):
             for item in data:
-                if item[0] not in self.sent:
-                    try:
-                        os = release.type
-                        guild = self.bot.get_guild(item[0])
+                if item[0] in meesaged_guilds:
+                    continue
 
-                        roles = json.loads(item[1])
-                        if not roles[os].get('enabled') or roles[os].get('channel') is None:
-                            continue
+                roles = json.loads(item[1])
+                guild = self.bot.get_guild(item[0])
 
-                        channel = guild.get_channel(roles[os].get('channel'))
-                        await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView([{
-                            'label': 'Link',
-                            'style': discord.ButtonStyle.link,
-                            'url': release.link
-                            }], context=None, public=True, timeout=None))
-                        self.sent.append(item[0])
-                        await asyncio.sleep(0.5)
-                    except: continue
-        self.sent = []
-        return
+                if guild is None: # Bot isn't in guild anymore
+                    logger.logger.warning(f'No longer in guild with id: {item[0]}, removing from database.')
+                    await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (item[0],))
+                    await self.bot.db.commit()
+
+                    continue
+
+                os = release.type
+                if not roles[os].get('enabled') or roles[os].get('channel') is None:
+                    continue
+
+                channel = guild.get_channel(roles[os].get('channel')) # Channel is deleted/Bot doesn't have access to channel
+                if channel is None:
+                    logger.logger.warning(f"Channel with id: {roles[os].get('channel')} is no longer accessible in guild: {guild.id}, disabling {os} releases for guild.")
+
+                    roles[os]['enabled'] = False
+                    await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
+                    await self.bot.db.commit()
+
+                    continue
+
+                button = [{
+                    'label': 'Link',
+                    'style': discord.ButtonStyle.link,
+                    'url': release.link
+                    }]
+
+                try:
+                    await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
+                except Exception as e:
+                    logger.logger.error(f'Failed to send message to channel: {channel.id} in guild: {guild.id} with error: {e}')
+
+                meesaged_guilds.append(guild.id)
+                await asyncio.sleep(1)
 
     @tasks.loop()
     async def release_checker(self) -> None:
@@ -89,7 +109,8 @@ class EventsCog(discord.Cog, name='Events'):
 
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
-                    await self.send_msgs(embed, release, data)
+                    
+                await self.send_msgs(embed, release, data)
 
         else:
             logger.logger.info('No new releases found.')

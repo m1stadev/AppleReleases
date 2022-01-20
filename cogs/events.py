@@ -90,6 +90,7 @@ class EventsCog(discord.Cog, name='Events'):
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
                     await self.send_msgs(embed, release, data)
+
         else:
             logger.logger.info('No new releases found.')
 

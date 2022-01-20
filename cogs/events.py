@@ -17,6 +17,31 @@ class EventsCog(discord.Cog, name='Events'):
         self.utils = self.bot.get_cog('Utilities')
         self.releases = None
         self.release_checker.start()
+        self.sent = []
+    
+    async def send_msgs(self, embed, release, data):
+        while len(self.sent) is not len(data):
+            for item in data:
+                if item[0] not in self.sent:
+                    try:
+                        os = release.type
+                        guild = self.bot.get_guild(item[0])
+
+                        roles = json.loads(item[1])
+                        if not roles[os].get('enabled') or roles[os].get('channel') is None:
+                            continue
+
+                        channel = guild.get_channel(roles[os].get('channel'))
+                        await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView([{
+                            'label': 'Link',
+                            'style': discord.ButtonStyle.link,
+                            'url': release.link
+                            }], context=None, public=True, timeout=None))
+                        self.sent.append(item[0])
+                        await asyncio.sleep(0.5)
+                    except: continue
+        self.sent = []
+        return
 
     @tasks.loop()
     async def release_checker(self) -> None:
@@ -24,7 +49,7 @@ class EventsCog(discord.Cog, name='Events'):
 
         if self.releases is None:
             self.releases = await api.fetch_releases()
-            await asyncio.sleep(60)
+            await asyncio.sleep(120)
             return
 
         firmwares: types.ComparedFirmwares = await api.compare_releases(self.releases) # Check for any new firmwares
@@ -60,27 +85,11 @@ class EventsCog(discord.Cog, name='Events'):
                             'inline': False
                         })
 
-                buttons = [{
-                    'label': 'Link',
-                    'style': discord.ButtonStyle.link,
-                    'url': release.link
-                }]
-
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
-
-                for item in data:
-                    os = release.type
-                    guild = self.bot.get_guild(item[0])
-
-                    roles = json.loads(item[1])
-                    if not roles[os].get('enabled') or roles[os].get('channel') is None:
-                        continue
-
-                    channel = guild.get_channel(roles[os].get('channel'))
-                    await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(buttons, context=None, public=True, timeout=None))
-                    await asyncio.sleep(0.5)
-        await asyncio.sleep(60)
+                    await self.send_msgs(embed, release, data)
+                
+        await asyncio.sleep(120)
 
     @discord.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild) -> None:

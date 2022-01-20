@@ -49,12 +49,14 @@ class EventsCog(discord.Cog, name='Events'):
 
         if self.releases is None:
             self.releases = await api.fetch_releases()
+            logger.logger.info('Populating release cache...')
             await asyncio.sleep(120)
             return
 
         firmwares: types.ComparedFirmwares = await api.compare_releases(self.releases) # Check for any new firmwares
         diff: List[types.Release] = firmwares.differences
         if len(diff) > 0:
+            logger.logger.info(f"{len(diff)} new release{'s' if len(diff) > 1 else ''} detected!")
             self.releases: List[types.Release] = firmwares.firmwares # Replace cached firmwares with new ones
 
             for release in diff:
@@ -88,7 +90,9 @@ class EventsCog(discord.Cog, name='Events'):
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
                     await self.send_msgs(embed, release, data)
-                
+        else:
+            logger.logger.info('No new releases found.')
+
         await asyncio.sleep(120)
 
     @discord.Cog.listener()

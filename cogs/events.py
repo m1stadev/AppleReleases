@@ -18,51 +18,50 @@ class EventsCog(discord.Cog, name='Events'):
         self.release_checker.start()
     
     async def send_msgs(self, embed: dict, release: types.Release, data: dict) -> None:
-        meesaged_guilds = list()
+        messaged_guilds = list()
 
-        while len(meesaged_guilds) != len(data):
-            for item in data:
-                if item[0] in meesaged_guilds:
-                    continue
+        for item in data:
+            if item[0] in messaged_guilds:
+                continue
 
-                roles = json.loads(item[1])
-                guild = self.bot.get_guild(item[0])
+            roles = json.loads(item[1])
+            guild = self.bot.get_guild(item[0])
 
-                if guild is None: # Bot isn't in guild anymore
-                    logger.logger.warning(f'No longer in guild with id: {item[0]}, removing from database.')
-                    await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (item[0],))
-                    await self.bot.db.commit()
+            if guild is None: # Bot isn't in guild anymore
+                logger.logger.warning(f'No longer in guild with id: {item[0]}, removing from database.')
+                await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (item[0],))
+                await self.bot.db.commit()
 
-                    continue
+                continue
 
-                os = release.type
-                if not roles[os].get('enabled') or roles[os].get('channel') is None:
-                    continue
+            os = release.type
+            if not roles[os].get('enabled') or roles[os].get('channel') is None:
+                continue
 
-                channel = guild.get_channel(roles[os].get('channel')) # Channel is deleted/Bot doesn't have access to channel
-                if channel is None:
-                    logger.logger.warning(f"Channel with id: {roles[os].get('channel')} is no longer accessible in guild: {guild.id}, disabling {os} releases for guild.")
+            channel = guild.get_channel(roles[os].get('channel')) # Channel is deleted/Bot doesn't have access to channel
+            if channel is None:
+                logger.logger.warning(f"Channel with id: {roles[os].get('channel')} is no longer accessible in guild: {guild.id}, disabling {os} releases for guild.")
 
-                    roles[os]['enabled'] = False
-                    await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
-                    await self.bot.db.commit()
+                roles[os]['enabled'] = False
+                await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
+                await self.bot.db.commit()
 
-                    continue
+                continue
 
-                button = [{
-                    'label': 'Link',
-                    'style': discord.ButtonStyle.link,
-                    'url': release.link
-                    }]
+            button = [{
+                'label': 'Link',
+                'style': discord.ButtonStyle.link,
+                'url': release.link
+                }]
 
-                try:
-                    await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
-                    logger.logger.info(f'Sent {os} {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
-                except Exception as e:
-                    logger.logger.error(f'Failed to send message to channel: {channel.id} in guild: {guild.id} with error: {e}')
+            try:
+                await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
+                logger.logger.info(f'Sent {os} {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
+            except Exception as e:
+                logger.logger.error(f'Failed to send message to channel: {channel.id} in guild: {guild.id} with error: {e}')
 
-                meesaged_guilds.append(guild.id)
-                await asyncio.sleep(1)
+            messaged_guilds.append(guild.id)
+            await asyncio.sleep(1)
 
     @tasks.loop()
     async def release_checker(self) -> None:

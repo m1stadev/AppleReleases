@@ -113,9 +113,6 @@ class EventsCog(discord.Cog, name='Events'):
                     
                 await self.send_msgs(embed, release, data)
 
-        else:
-            logger.logger.info('No new releases found, sleeping 120s.')
-
         await asyncio.sleep(120)
 
     @discord.Cog.listener()

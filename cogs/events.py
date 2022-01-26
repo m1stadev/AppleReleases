@@ -1,4 +1,5 @@
 # imports
+from discord.errors import Forbidden
 from discord.ext import commands, tasks
 from discord.utils import format_dt
 from typing import List
@@ -56,9 +57,16 @@ class EventsCog(discord.Cog, name='Events'):
 
             try:
                 await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
-                logger.logger.info(f'Sent {os} {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
+                logger.logger.info(f'Sent {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
+            except Forbidden:
+                logger.logger.error(f'Unable to send {os} releases to channel: #{channel.name} in guild: {guild.name}, disabling {os} releases for guild.')
+
+                roles[os]['enabled'] = False
+                await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
+                await self.bot.db.commit()
+
             except Exception as e:
-                logger.logger.error(f'Failed to send message to channel: {channel.id} in guild: {guild.id} with error: {e}')
+                logger.logger.error(f'Failed to send {release.version} ({release.build_number}) release to channel: #{channel.name} in guild: {guild.name} with error: {e}')
 
             messaged_guilds.append(guild.id)
             await asyncio.sleep(1)
@@ -112,6 +120,8 @@ class EventsCog(discord.Cog, name='Events'):
                     data = await cursor.fetchall()
                     
                 await self.send_msgs(embed, release, data)
+
+            logger.logger.info('Finished sending new releases.')
 
         await asyncio.sleep(120)
 

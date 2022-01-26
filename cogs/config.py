@@ -1,5 +1,4 @@
 # imports
-from datetime import datetime
 from discord import Option
 from discord.commands import slash_command
 from utils import api
@@ -33,7 +32,6 @@ class ConfigCog(discord.Cog, name='Configuration'):
 
         embed = {
             'title': 'Apple Releases Configuration',
-            'timestamp': str(datetime.now()),
             'color': int(discord.Color.blurple()),
             'thumbnail': {
                 'url': ctx.guild.icon.url
@@ -51,7 +49,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
                 'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
             },
         }
-        await ctx.respond(embed=discord.Embed.from_dict(embed), ephemeral=True)
+        await ctx.respond(embed=discord.Embed.from_dict(embed), ephemeral=False)
 
     @config.command(name='setchannel', description='Set a channel for Apple releases to be announced in.')
     async def set_channel(self, ctx: discord.ApplicationContext, channel: Option(discord.TextChannel, 'Channel to send Apple releases in', required=False)):

@@ -3,7 +3,7 @@ aiohttp
 aiopath
 aiosqlite
 bs4
-git+https://github.com/Pycord-Development/pycord@master
+py-cord==2.0.0b1
 psutil
 python-dotenv
 pytz

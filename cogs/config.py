@@ -39,7 +39,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
             'fields': [
                     {
                         'name': os,
-                        'value': f"Status: {'Enabled' if roles[os].get('enabled') else 'Disabled'}\nAnnouncement Channel: {ctx.guild.get_channel(roles[os].get('channel')).mention if ctx.guild.get_channel(roles[os].get('channel')) is not None else 'None'}\nAnnouncement Role: {ctx.guild.get_role(roles[os].get('role')).mention}",
+                        'value': f"Status: **{'Enabled' if roles[os].get('enabled') else 'Disabled'}**\nAnnouncement Channel: {ctx.guild.get_channel(roles[os].get('channel')).mention if ctx.guild.get_channel(roles[os].get('channel')) is not None else 'None'}\nAnnouncement Role: {ctx.guild.get_role(roles[os].get('role')).mention}",
                         'inline': False
                     } 
                 for os in roles.keys()
@@ -49,6 +49,10 @@ class ConfigCog(discord.Cog, name='Configuration'):
                 'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
             },
         }
+
+        other = next(embed['fields'].index(_) for _ in embed['fields'] if _['name'] == 'Other')
+        embed['fields'][other]['name'] = embed['fields'][other]['name'] + ' (*Xcode, TestFlight, App Store Connect, etc.*)'
+
         await ctx.respond(embed=discord.Embed.from_dict(embed), ephemeral=False)
 
     @config.command(name='setchannel', description='Set a channel for Apple releases to be announced in.')

@@ -1,5 +1,5 @@
 # imports
-from datetime import datetime
+from discord.errors import Forbidden
 from discord.ext import commands, tasks
 from discord.utils import format_dt
 from typing import List
@@ -17,44 +17,75 @@ class EventsCog(discord.Cog, name='Events'):
         self.utils = self.bot.get_cog('Utilities')
         self.releases = None
         self.release_checker.start()
-        self.sent = []
     
-    async def send_msgs(self, embed, release, data):
-        while len(self.sent) is not len(data):
-            for item in data:
-                if item[0] not in self.sent:
-                    try:
-                        os = release.type
-                        guild = self.bot.get_guild(item[0])
+    async def send_msgs(self, embed: dict, release: types.Release, data: dict) -> None:
+        messaged_guilds = list()
 
-                        roles = json.loads(item[1])
-                        if not roles[os].get('enabled') or roles[os].get('channel') is None:
-                            continue
+        for item in data:
+            if item[0] in messaged_guilds:
+                continue
 
-                        channel = guild.get_channel(roles[os].get('channel'))
-                        await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView([{
-                            'label': 'Link',
-                            'style': discord.ButtonStyle.link,
-                            'url': release.link
-                            }], context=None, public=True, timeout=None))
-                        self.sent.append(item[0])
-                        await asyncio.sleep(0.5)
-                    except: continue
-        self.sent = []
-        return
+            roles = json.loads(item[1])
+            guild = self.bot.get_guild(item[0])
+
+            if guild is None: # Bot isn't in guild anymore
+                logger.logger.warning(f'No longer in guild with id: {item[0]}, removing from database.')
+                await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (item[0],))
+                await self.bot.db.commit()
+
+                continue
+
+            os = release.type
+            if not roles[os].get('enabled') or roles[os].get('channel') is None:
+                continue
+
+            channel = guild.get_channel(roles[os].get('channel')) # Channel is deleted/Bot doesn't have access to channel
+            if channel is None:
+                logger.logger.warning(f"Channel with id: {roles[os].get('channel')} is no longer accessible in guild: {guild.id}, disabling {os} releases for guild.")
+
+                roles[os]['enabled'] = False
+                await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
+                await self.bot.db.commit()
+
+                continue
+
+            button = [{
+                'label': 'Link',
+                'style': discord.ButtonStyle.link,
+                'url': release.link
+                }]
+
+            try:
+                await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
+                logger.logger.info(f'Sent {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
+            except Forbidden:
+                logger.logger.warning(f'Unable to send {os} releases to channel: #{channel.name} in guild: {guild.name}, disabling {os} releases for guild.')
+
+                roles[os]['enabled'] = False
+                await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
+                await self.bot.db.commit()
+
+            except Exception as e:
+                logger.logger.error(f'Failed to send {release.version} ({release.build_number}) release to channel: #{channel.name} in guild: {guild.name} with error: {e}')
+
+            messaged_guilds.append(guild.id)
+            await asyncio.sleep(1)
 
     @tasks.loop()
     async def release_checker(self) -> None:
         await self.bot.wait_until_ready()
 
         if self.releases is None:
+            logger.logger.info('Populating release cache...')
             self.releases = await api.fetch_releases()
+            logger.logger.info('Release cache populated, sleeping 120s.')
             await asyncio.sleep(120)
             return
 
         firmwares: types.ComparedFirmwares = await api.compare_releases(self.releases) # Check for any new firmwares
         diff: List[types.Release] = firmwares.differences
         if len(diff) > 0:
+            logger.logger.info(f"{len(diff)} new release{'s' if len(diff) > 1 else ''} detected!")
             self.releases: List[types.Release] = firmwares.firmwares # Replace cached firmwares with new ones
 
             for release in diff:
@@ -87,8 +118,11 @@ class EventsCog(discord.Cog, name='Events'):
 
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
-                    await self.send_msgs(embed, release, data)
-                
+                    
+                await self.send_msgs(embed, release, data)
+
+            logger.logger.info('Finished sending new releases.')
+
         await asyncio.sleep(120)
 
     @discord.Cog.listener()

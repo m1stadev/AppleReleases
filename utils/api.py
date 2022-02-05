@@ -54,7 +54,6 @@ async def plist(url: str):
                 plist = plistlib.loads(await resp.read())
             except Exception as e:
                 logger.error('Could not parse the plist: ', url)
-                print(e)
  
     except Exception:
         logger.error('[PLIST] Error fetching the URL: ', url)

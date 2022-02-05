@@ -9,7 +9,6 @@ import aiohttp
 import bs4
 import plistlib
 
-
 VALID_RELEASES = (
     'iOS',
     'iPadOS',

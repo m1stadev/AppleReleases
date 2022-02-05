@@ -63,6 +63,8 @@ async def startup():
 
 if __name__ == '__main__':
     try:
-        asyncio.run(startup())
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(startup())
+        loop.close()
     except KeyboardInterrupt:
-        pass
+        exit(0)

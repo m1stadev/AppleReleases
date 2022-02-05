@@ -131,7 +131,7 @@ class Logger:
         self.HNDLR.formatter = Formatter()
         if not args.disable_discord_logs:
             discord_logger = logging.getLogger('discord')
-            discord_logger.setLevel(logging.INFO)
+            discord_logger.setLevel(logging.WARN)
             discord_logger.addHandler(self.HNDLR)
             if not args.disable_webhook_logging:
                 discord_logger.addHandler(WebhookLogger())

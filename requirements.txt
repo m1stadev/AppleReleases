@@ -4,7 +4,7 @@ aiopath
 aiosqlite
 bs4
 py-cord==2.0.0b1
-# psutil
+psutil
 python-dotenv
 pytz
 radium

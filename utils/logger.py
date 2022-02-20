@@ -1,5 +1,5 @@
-# imports
-from dotenv.main import load_dotenv
+# Imports
+from dotenv import load_dotenv
 
 import argparse
 import logging

@@ -1,18 +1,26 @@
 # Imports
-from dotenv import load_dotenv
-
-import argparse
-import logging
 import os
+import logging
+import argparse
+
 import radium as r
+from dotenv import load_dotenv
 
 load_dotenv()
 
 class Logger:
     def __init__(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('--disable-discord-logs', help='Disables Discord logging.', action='store_true')
-        parser.add_argument('--disable-webhook-logging', help='Disables logging to the webhook.', action='store_true')
+        parser.add_argument(
+            '--disable-discord-logs',
+            help='Disables Discord logging',
+            action='store_true'
+        )
+        parser.add_argument(
+            '--disable-webhook-logging',
+            help='Disables logging to the webhook',
+            action='store_true'
+        )
 
         args = parser.parse_args()
 
@@ -20,6 +28,7 @@ class Logger:
             discord_logger = logging.getLogger('discord')
             discord_logger.setLevel(logging.WARN)
             discord_logger.addHandler(r.Radium)
+
         self.logger = logging.Logger(__name__)
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(r.Radium)
@@ -35,6 +44,7 @@ class Logger:
                         l.append(x.replace('[', '').replace(']', '').replace('"', '').replace('\'', '').replace(' ', ''))
                 else:
                     l = [os.environ.get('OWNERS')]
+
                 self.logger.info("Discord webhook logging is ENABLED!")
                 wh = r.WebhookLogger(url=os.environ.get("LOGGING_WEBHOOK_URL"), ids_to_ping=l)
                 discord_logger.addHandler(wh)

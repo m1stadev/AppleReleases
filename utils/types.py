@@ -9,7 +9,7 @@ import bs4
 import discord
 import json
 
-class AudioRelease():
+class AudioRelease:
     def __init__(self, plist: dict, device: str):
         # Raw RSS
         self._plist = plist
@@ -32,7 +32,7 @@ class AudioRelease():
 
         return guild.get_role(roles['Other'].get('role')).mention
 
-class Release():
+class Release:
     def __init__(self, rss: dict):
         # Raw RSS
         self._rss = rss
@@ -86,7 +86,7 @@ class Release():
             if os == self.type:
                 return guild.get_role(roles[os].get('role')).mention
 
-class ComparedFirmwares():
+class ComparedFirmwares:
     def __init__(self, diff, fetched):
         # Firmware differences
         self.differences: List[Release] = diff

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# imports
-from dotenv.main import load_dotenv
+# Imports
+from dotenv import load_dotenv
 from utils.logger import logger
 
 import aiohttp

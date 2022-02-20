@@ -1,13 +1,19 @@
-# imports
-from .logger import logger
-from .types import AudioRelease, Release, ComparedFirmwares
-from aiopath import AsyncPath
-from typing import Union
-
+# Imports
 import aiofiles
 import aiohttp
 import bs4
 import plistlib
+
+from typing import Union
+from .logger import logger
+from aiopath import AsyncPath
+
+from .types import (
+    Release,
+    AudioRelease,
+    ComparedFirmwares
+)
+
 
 VALID_RELEASES = (
     'iOS',
@@ -35,15 +41,12 @@ async def rss(url: str):
     except Exception:
         logger.error('Could not parse the RSS: ', url)
 
-    articles = [
-            {
-                'title': a.find('title').text,
-                'link': a.link.next_sibling.replace('\n','').replace('\t',''),
-                'description': a.find('description').text,
-                'pubdate': a.find('pubdate').text
-            }
-        for a in soup.findAll('item')
-    ]
+    articles = [{
+        "title": a.find("title").text,
+        "link": a.link.next_sibling.replace("\n", "").replace("\t", ""),
+        "description": a.find("description").text,
+        "pubdate": a.find("pubdate").text
+    } for a in soup.findAll('item')]
 
     return articles
 
@@ -58,12 +61,9 @@ async def plist(url: str):
     except Exception:
         logger.error('[PLIST] Error fetching the URL: ', url)
 
-    articles = [
-            {
-                'version': _['Build']
-            }
-        for _ in plist['Assets']
-    ]
+    articles = [{
+        "version": _['Build']
+    } for _ in plist['Assets']]
     
     return articles
 

@@ -2,21 +2,27 @@
 from . import api
 from datetime import datetime
 from pytz import timezone as tz
-from typing import Optional, List
+from typing import Optional, List, Union
 
 import aiohttp
 import bs4
 import discord
 import json
 
-class AudioRelease():
-    def __init__(self, plist: dict, device: str):
-        # Raw RSS
-        self._plist = plist
-        # Release Type
-        self.type: str = device
-        # Version
-        self.version: str = plist.get('version')
+class OtherRelease():
+    def __init__(self, dict: dict):
+        # build number
+        self.build: str = dict.get('version')
+        # release zip
+        self.zip: str = dict.get('zip')
+        # name
+        self.name: str = dict.get('orig').get('name')
+        # xml
+        self.xml: str = dict.get('orig').get('xml')
+        # image
+        self.img: str = dict.get('orig').get('img')
+        # version
+        self.version = f'{self.name} {self.build}'
     
     async def ping(self, bot: discord.Bot, guild: discord.Guild) -> Optional[str]:
         """Formats the mention of the appropriate role for a release.
@@ -89,6 +95,6 @@ class Release():
 class ComparedFirmwares():
     def __init__(self, diff, fetched):
         # Firmware differences
-        self.differences: List[Release] = diff
+        self.differences: List[Union[Release, OtherRelease]] = diff
         # Fetched firmwares
-        self.firmwares: List[Release] = fetched
+        self.firmwares: List[Union[Release, OtherRelease]] = fetched

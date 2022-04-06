@@ -2,13 +2,15 @@
 from discord.errors import Forbidden
 from discord.ext import commands, tasks
 from discord.utils import format_dt
-from typing import List
+from typing import List, Union
 from utils import api, types, logger
 from views.buttons import ReactionRoleButton, SelectView
 
 import asyncio
 import discord
 import json
+
+l = logger.logger
 
 class EventsCog(discord.Cog, name='Events'):
     def __init__(self, bot: discord.Bot):
@@ -29,7 +31,7 @@ class EventsCog(discord.Cog, name='Events'):
             guild = self.bot.get_guild(item[0])
 
             if guild is None: # Bot isn't in guild anymore
-                logger.logger.warning(f'No longer in guild with id: {item[0]}, removing from database.')
+                l.warning(f'No longer in guild with id: {item[0]}, removing from database.')
                 await self.bot.db.execute('DELETE FROM roles WHERE guild = ?', (item[0],))
                 await self.bot.db.commit()
 
@@ -41,7 +43,7 @@ class EventsCog(discord.Cog, name='Events'):
 
             channel = guild.get_channel(roles[os].get('channel')) # Channel is deleted/Bot doesn't have access to channel
             if channel is None:
-                logger.logger.warning(f"Channel with id: {roles[os].get('channel')} is no longer accessible in guild: {guild.id}, disabling {os} releases for guild.")
+                l.warning(f"Channel with id: {roles[os].get('channel')} is no longer accessible in guild: {guild.id}, disabling {os} releases for guild.")
 
                 roles[os]['enabled'] = False
                 await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
@@ -57,16 +59,16 @@ class EventsCog(discord.Cog, name='Events'):
 
             try:
                 await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
-                logger.logger.info(f'Sent {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
+                l.info(f'Sent {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
             except Forbidden:
-                logger.logger.warning(f'Unable to send {os} releases to channel: #{channel.name} in guild: {guild.name}, disabling {os} releases for guild.')
+                l.warning(f'Unable to send {os} releases to channel: #{channel.name} in guild: {guild.name}, disabling {os} releases for guild.')
 
                 roles[os]['enabled'] = False
                 await self.bot.db.execute('UPDATE roles SET data = ? WHERE guild = ?', (json.dumps(roles), guild.id))
                 await self.bot.db.commit()
 
             except Exception as e:
-                logger.logger.error(f'Failed to send {release.version} ({release.build_number}) release to channel: #{channel.name} in guild: {guild.name} with error: {e}')
+                l.error(f'Failed to send {release.version} ({release.build_number}) release to channel: #{channel.name} in guild: {guild.name} with error: {e}')
 
             messaged_guilds.append(guild.id)
             await asyncio.sleep(1)
@@ -76,17 +78,17 @@ class EventsCog(discord.Cog, name='Events'):
         await self.bot.wait_until_ready()
 
         if self.releases is None:
-            logger.logger.info('Populating release cache...')
+            l.info('Populating release cache...')
             self.releases = await api.fetch_releases()
-            logger.logger.info('Release cache populated, sleeping 120s.')
+            l.info('Release cache populated, sleeping.')
             await asyncio.sleep(120)
             return
 
         firmwares: types.ComparedFirmwares = await api.compare_releases(self.releases) # Check for any new firmwares
-        diff: List[types.Release] = firmwares.differences
+        diff: List[Union[types.Release, types.OtherRelease]] = firmwares.differences
         if len(diff) > 0:
-            logger.logger.info(f"{len(diff)} new release{'s' if len(diff) > 1 else ''} detected!")
-            self.releases: List[types.Release] = firmwares.firmwares # Replace cached firmwares with new ones
+            l.info(f"{len(diff)} new release{'s' if len(diff) > 1 else ''} detected!")
+            self.releases: List[Union[types.Release, types.OtherRelease]] = firmwares.firmwares # Replace cached firmwares with new ones
 
             for release in diff:
                 embed = {
@@ -96,13 +98,7 @@ class EventsCog(discord.Cog, name='Events'):
                     'thumbnail': {
                         'url': await release.get_icon()
                     },
-                    'fields': [
-                        {
-                            'name': 'Release Date',
-                            'value': format_dt(release.date),
-                            'inline': False
-                        }
-                    ],
+                    'fields': [],
                     'footer': {
                         'text': 'Apple Releases • Made by m1sta and Jaidan',
                         'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
@@ -111,6 +107,10 @@ class EventsCog(discord.Cog, name='Events'):
 
                 if release.type in api.VALID_RELEASES:
                     embed['fields'].append({
+                            'name': 'Release Date',
+                            'value': format_dt(release.date),
+                            'inline': False
+                        },{
                             'name': 'Build Number',
                             'value': release.build_number,
                             'inline': False
@@ -121,7 +121,7 @@ class EventsCog(discord.Cog, name='Events'):
                     
                 await self.send_msgs(embed, release, data)
 
-            logger.logger.info('Finished sending new releases.')
+            l.info('Finished sending new releases.')
 
         await asyncio.sleep(120)
 
@@ -224,8 +224,8 @@ class EventsCog(discord.Cog, name='Events'):
 
             self.bot.add_view(view)
 
-        logger.logger.info('Apple Releases is READY!')
-        logger.logger.info(f'Logged in as {self.bot.user}. Serving {len(self.bot.guilds)} guild(s).')
+        l.info('Apple Releases is READY!')
+        l.info(f'Logged in as {self.bot.user}. Serving {len(self.bot.guilds)} guild(s).')
 
     @discord.Cog.listener()
     async def on_command_error(self, ctx: discord.ApplicationContext, error) -> None:

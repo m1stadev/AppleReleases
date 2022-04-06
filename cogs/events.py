@@ -20,7 +20,7 @@ class EventsCog(discord.Cog, name='Events'):
         self.releases = None
         self.release_checker.start()
     
-    async def send_msgs(self, embed: dict, release: types.Release, data: dict) -> None:
+    async def send_msgs(self, embed: dict, release: Union[types.Release, types.OtherRelease], data: dict) -> None:
         messaged_guilds = list()
 
         for item in data:
@@ -51,14 +51,16 @@ class EventsCog(discord.Cog, name='Events'):
 
                 continue
 
-            button = [{
-                'label': 'Link',
-                'style': discord.ButtonStyle.link,
-                'url': release.link
-                }]
-
             try:
-                await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
+                if os in api.VALID_RELEASES:
+                    button = [{
+                        'label': 'Link',
+                        'style': discord.ButtonStyle.link,
+                        'url': release.link
+                    }]
+                    await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
+                else:
+                    await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed))
                 l.info(f'Sent {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
             except Forbidden:
                 l.warning(f'Unable to send {os} releases to channel: #{channel.name} in guild: {guild.name}, disabling {os} releases for guild.')

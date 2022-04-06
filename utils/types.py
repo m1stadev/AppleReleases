@@ -13,6 +13,8 @@ class OtherRelease():
     def __init__(self, dict: dict):
         # build number
         self.build: str = dict.get('version')
+        # type
+        self.type: str = 'Other'
         # release zip
         self.zip: str = dict.get('zip')
         # name
@@ -22,7 +24,7 @@ class OtherRelease():
         # image
         self.img: str = dict.get('orig').get('img')
         # version
-        self.version = f'{self.name} {self.build}'
+        self.version: str = f'{self.name} {self.build}'
     
     async def ping(self, bot: discord.Bot, guild: discord.Guild) -> Optional[str]:
         """Formats the mention of the appropriate role for a release.

@@ -31,17 +31,22 @@ map = [
     {
         'name': 'AirPods 1 and 2 Firmware',
         'xml': 'https://mesu.apple.com/assets/com_apple_MobileAsset_MobileAccessoryUpdate_A2032_EA/com_apple_MobileAsset_MobileAccessoryUpdate_A2032_EA.xml',
-        'img': 'https://www.freepnglogos.com/uploads/airpods-png/airpods-wireless-headphones-apple-indiaistore-4.png'
+        'img': 'https://help.apple.com/assets/6305096F029A2032C16D3326/63050972029A2032C16D332F/en_US/ee1c9de8c19be64e5246f6a410ec443a.png'
     },
     {
         'name': 'AirPods Pro Firmware',
         'xml': 'https://mesu.apple.com/assets/com_apple_MobileAsset_MobileAccessoryUpdate_A2084_EA/com_apple_MobileAsset_MobileAccessoryUpdate_A2084_EA.xml',
-        'img': 'https://images.macrumors.com/t/iIHGbqwaHJgcnjYzsy1-BHQsz7Y=/1600x/article-new/2020/04/AirPods-PRo-isolated.png'
+        'img': 'https://help.apple.com/assets/6305096F029A2032C16D3326/63050972029A2032C16D332F/en_US/af04ba25533b325869157fd1fd66e488.png'
     },
     {
         'name': 'AirPods 3 Firmware',
         'xml': 'https://mesu.apple.com/assets/com_apple_MobileAsset_MobileAccessoryUpdate_A2564_EA/com_apple_MobileAsset_MobileAccessoryUpdate_A2564_EA.xml',
         'img': 'https://www.att.com/catalog/en/idse/Apple/Apple%20AirPods%20_3rd%20generation_/White-hero-zoom.png'
+    },
+    {
+        'name': 'AirPods Max Firmware',
+        'xml': 'https://mesu.apple.com/assets/com_apple_MobileAsset_MobileAccessoryUpdate_A2096_EA/com_apple_MobileAsset_MobileAccessoryUpdate_A2096_EA.xml',
+        'img': 'https://help.apple.com/assets/6305096F029A2032C16D3326/63050972029A2032C16D332F/en_US/b9f519195f84950573eea5088a49b964.png'
     }
 ]
 

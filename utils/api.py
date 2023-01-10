@@ -66,7 +66,7 @@ async def rss(url: str):
     articles = [
             {
                 'title': a.find('title').text,
-                'link': a.link.next_sibling.replace('\n','').replace('\t',''),
+                'link': a.find('link').text,
                 'description': a.find('description').text,
                 'pubdate': a.find('pubDate').text
             }
@@ -149,7 +149,7 @@ async def compare_releases(to_compare: list[Union[Release, OtherRelease]]) -> Co
     differences = []
     
     for release in releases:
-        if release not in to_compare:
+        if list(filter(lambda x: x.version == release.version, to_compare)) == []:
             differences.append(release)
 
     # Compare the old & new release lists

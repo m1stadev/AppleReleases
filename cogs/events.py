@@ -40,7 +40,7 @@ class EventsCog(discord.Cog, name='Events'):
             os = release.type
             if not roles[os].get('enabled') or roles[os].get('channel') is None:
                 continue
-
+            
             channel = guild.get_channel(roles[os].get('channel')) # Channel is deleted/Bot doesn't have access to channel
             if channel is None:
                 l.warning(f"Channel with id: {roles[os].get('channel')} is no longer accessible in guild: {guild.id}, disabling {os} releases for guild.")
@@ -61,7 +61,10 @@ class EventsCog(discord.Cog, name='Events'):
                     await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed), view=SelectView(button, context=None, public=True, timeout=None))
                 else:
                     await channel.send(content=await release.ping(self.bot, guild), embed=discord.Embed.from_dict(embed))
-                l.info(f'Sent {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
+                if type(os) == types.Release:
+                    l.info(f'Sent {release.version} ({release.build_number}) release to guild: {guild.name}, channel: #{channel.name}.')
+                else:
+                    l.info(f'Sent {release.version} release to guild: {guild.name}, channel: #{channel.name}.')
             except Forbidden:
                 l.warning(f'Unable to send {os} releases to channel: #{channel.name} in guild: {guild.name}, disabling {os} releases for guild.')
 
@@ -81,11 +84,12 @@ class EventsCog(discord.Cog, name='Events'):
 
         if self.releases is None:
             l.info('Populating release cache...')
-            self.releases = await api.fetch_releases()
+            #self.releases = await api.fetch_releases()
+            self.releases = []
             l.info('Release cache populated, sleeping.')
-            await asyncio.sleep(120)
+            await asyncio.sleep(5)
             return
-
+        
         firmwares: types.ComparedFirmwares = await api.compare_releases(self.releases) # Check for any new firmwares
         diff: List[Union[types.Release, types.OtherRelease]] = firmwares.differences
         if len(diff) > 0:
@@ -98,7 +102,7 @@ class EventsCog(discord.Cog, name='Events'):
                     'description': release.version,
                     'color': int(discord.Color.blurple()),
                     'thumbnail': {
-                        'url': await release.get_icon()
+                        'url': ''
                     },
                     'fields': [],
                     'footer': {
@@ -106,17 +110,26 @@ class EventsCog(discord.Cog, name='Events'):
                         'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
                     }
                 }
-
+                print('check!')
                 if release.type in api.VALID_RELEASES:
                     embed['fields'].append({
                             'name': 'Release Date',
                             'value': format_dt(release.date),
                             'inline': False
-                        },{
+                        })
+                    embed['fields'].append({
                             'name': 'Build Number',
                             'value': release.build_number,
                             'inline': False
                         })
+                
+                if type(release) == types.Release:
+                    embed['thumbnail']['url'] = await release.get_icon()
+                else:
+                    embed['thumbnail']['url'] = release.img
+                
+                
+                print(embed)
 
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()

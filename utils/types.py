@@ -42,6 +42,8 @@ class OtherRelease():
 
 class Release():
     def __init__(self, rss: dict):
+        # session
+        self.session = aiohttp.ClientSession()
         # Raw RSS
         self._rss = rss
         # Release Type
@@ -73,10 +75,11 @@ class Release():
             return getattr(self, '__icon')
         except AttributeError:
             pass
-
-        async with aiohttp.ClientSession() as session, session.get(self.link) as resp:
-            self.__icon = bs4.BeautifulSoup(await resp.text(), features='html.parser').findAll(attrs={'property': 'og:image'})[0]['content']
-            return self.__icon
+        
+        resp = await self.session.get(self.link)
+        self.__icon = bs4.BeautifulSoup(await resp.text(), features='html.parser').findAll(attrs={'property': 'og:image'})[0]['content']
+        self.session.close()
+        return self.__icon
 
     async def ping(self, bot: discord.Bot, guild: discord.Guild) -> Optional[str]:
         """Formats the mention of the appropriate role for a release.

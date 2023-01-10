@@ -58,8 +58,8 @@ async def rss(url: str):
         except Exception:
             logger.error('[RSS] Error fetching the URL: ', url)
 
-    try:    
-        soup = bs4.BeautifulSoup(r, features='html.parser')
+    try:
+        soup = bs4.BeautifulSoup(r, features='xml')
     except Exception:
         logger.error('Could not parse the RSS: ', url)
 
@@ -68,7 +68,7 @@ async def rss(url: str):
                 'title': a.find('title').text,
                 'link': a.link.next_sibling.replace('\n','').replace('\t',''),
                 'description': a.find('description').text,
-                'pubdate': a.find('pubdate').text
+                'pubdate': a.find('pubDate').text
             }
         for a in soup.findAll('item')
     ]

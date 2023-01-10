@@ -11,21 +11,19 @@ Get notifications in your Discord server of any software releases from [Apple](h
 Created with love by myself and [Jaidan](https://github.com/ja1dan).
 
 ## Running
-To locally host your own instance, [create a Discord bot](https://discord.com/developers) and follow these steps...
+To locally host your own instance, [create a Discord bot](https://discord.com/developers) and follow these steps:
 
 1. Clone this repository
 
-2. Create a virtual env and install dependencies
+2. Install poetry
 
-        python3 -m venv --upgrade-deps env
-        source env/bin/activate
-        pip3 install -Ur requirements.txt
+3. Install dependencies via `poetry install`
 
 3. Create a `.env` file containing `AR_TOKEN=<TOKEN>`, replacing `<TOKEN>` with your bot token.
 
 4. Start your instance
 
-        python3 bot.py
+        poetry run applereleases
 
 ## Support
 For any questions/issues you have, join my [Discord](https://m1sta.xyz/discord).

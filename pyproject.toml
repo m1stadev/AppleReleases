@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "applereleases"
+version = "1.0.0"
+description = ""
+authors = ["ja1dan <ajaidan0@gmail.com>", "m1sta"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiofiles = "^22.1.0"
+aiohttp = "^3.8.3"
+aiopath = "^0.6.11"
+aiosqlite = "^0.18.0"
+bs4 = "^0.0.1"
+lxml = "^4.9.2"
+py-cord = "^2.3.2"
+psutil = "^5.9.4"
+python-dotenv = "^0.21.0"
+pytz = "^2022.7"
+radium = "^1.0.2"
+
+[tool.poetry.scripts]
+applereleases = 'applereleases.__main__:main'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,9 +1,9 @@
 # imports
 from discord import Option
 from discord.commands import slash_command
-from utils import api
-from views.selects import DropdownView
-from views.buttons import PaginatorView, ReactionRoleButton
+from ..utils import api
+from ..views.selects import DropdownView
+from ..views.buttons import PaginatorView, ReactionRoleButton
 
 import discord
 import json
@@ -34,7 +34,7 @@ class ConfigCog(discord.Cog, name='Configuration'):
             'title': 'Apple Releases Configuration',
             'color': int(discord.Color.blurple()),
             'thumbnail': {
-                'url': ctx.guild.icon.url
+                'url': ctx.guild.icon.url if ctx.guild.icon is not None else ''
             },
             'fields': [
                     {

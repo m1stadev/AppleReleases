@@ -2,7 +2,7 @@
 
 # imports
 from dotenv.main import load_dotenv
-from utils.logger import logger
+from .utils.logger import logger
 
 import aiohttp
 import aiopath
@@ -14,8 +14,8 @@ import sys
 import time
 
 async def startup():
-    if sys.version_info.major < 3 and sys.version_info.minor < 9:
-        logger.error('Apple Releases requires Python 3.9 or higher. Exiting. (See \'https://phoenixnap.com/kb/upgrade-python\' for assistance)')
+    if sys.version_info.major < 3 and sys.version_info.minor < 10:
+        logger.error('Apple Releases requires Python 3.10 or higher. Exiting. (See \'https://phoenixnap.com/kb/upgrade-python\' for assistance)')
         exit(1)
 
     load_dotenv()
@@ -32,13 +32,13 @@ async def startup():
     )
 
     bot.start_time = time.time()
-    bot.load_extension('cogs.utils') # Load utils cog first
-    cogs = aiopath.AsyncPath('cogs')
+    bot.load_extension('applereleases.cogs.utils') # Load utils cog first
+    cogs = aiopath.AsyncPath('applereleases/cogs')
     async for cog in cogs.glob('*.py'):
         if cog.stem == 'utils':
             continue
 
-        bot.load_extension(f'cogs.{cog.stem}')
+        bot.load_extension(f'applereleases.cogs.{cog.stem}')
 
     db_path = aiopath.AsyncPath('Data/bot.db')
     await db_path.parent.mkdir(exist_ok=True)
@@ -60,11 +60,13 @@ async def startup():
             logger.error('Token invalid, make sure the \'AR_TOKEN\' environment variable is set to your bot token. Exiting. (See \'.env\')')
             exit(1)
 
-
-if __name__ == '__main__':
+def main():
     try:
         loop = asyncio.new_event_loop()
         loop.run_until_complete(startup())
         loop.close()
     except KeyboardInterrupt:
         exit(0)
+
+if __name__ == '__main__':
+    main()

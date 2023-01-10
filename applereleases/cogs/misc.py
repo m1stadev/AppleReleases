@@ -4,7 +4,7 @@ from discord.commands import slash_command
 from discord.ext import commands
 from discord.utils import format_dt
 from math import floor
-from views.buttons import SelectView
+from ..views.buttons import SelectView
 
 import asyncio
 import discord

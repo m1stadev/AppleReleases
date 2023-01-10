@@ -3,8 +3,8 @@ from discord.errors import Forbidden
 from discord.ext import commands, tasks
 from discord.utils import format_dt
 from typing import List, Union
-from utils import api, types, logger
-from views.buttons import ReactionRoleButton, SelectView
+from ..utils import api, types, logger
+from ..views.buttons import ReactionRoleButton, SelectView
 
 import asyncio
 import discord

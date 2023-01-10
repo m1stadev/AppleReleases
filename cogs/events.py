@@ -84,10 +84,10 @@ class EventsCog(discord.Cog, name='Events'):
 
         if self.releases is None:
             l.info('Populating release cache...')
-            #self.releases = await api.fetch_releases()
-            self.releases = []
+            self.releases = await api.fetch_releases()
+            #self.releases = []
             l.info('Release cache populated, sleeping.')
-            await asyncio.sleep(5)
+            await asyncio.sleep(120)
             return
         
         firmwares: types.ComparedFirmwares = await api.compare_releases(self.releases) # Check for any new firmwares

@@ -110,7 +110,7 @@ class EventsCog(discord.Cog, name='Events'):
                         'icon_url': str(self.bot.user.display_avatar.with_static_format('png').url)
                     }
                 }
-                print('check!')
+                
                 if release.type in api.VALID_RELEASES:
                     embed['fields'].append({
                             'name': 'Release Date',
@@ -127,9 +127,6 @@ class EventsCog(discord.Cog, name='Events'):
                     embed['thumbnail']['url'] = await release.get_icon()
                 else:
                     embed['thumbnail']['url'] = release.img
-                
-                
-                print(embed)
 
                 async with self.bot.db.execute('SELECT * FROM roles') as cursor:
                     data = await cursor.fetchall()
